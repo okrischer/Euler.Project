@@ -2,6 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
 
+module Main where
 import Diagrams.Prelude
 import Diagrams.Backend.Cairo.CmdLine ( mainWith )
 import DiaLib ( oblong )

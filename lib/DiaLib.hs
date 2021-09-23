@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module DiaLib (sierpinski, oblong)
+module DiaLib ( oblong )
 where
 import Diagrams.Prelude
 import Diagrams.Backend.Cairo.CmdLine

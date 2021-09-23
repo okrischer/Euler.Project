@@ -47,14 +47,14 @@ sumDivisibleBy factor limit =
 
 Since `sumDivisibleBy` represents a closed formula, the runtime complexity of this algorithm is constant, thus $\mathcal{O}(1)$.
 
-\subsection{Triangular numbers}
+\subsection{Triangular Numbers}
+\subsubsection{Theorem}
 
-**Theorem 001 - Triangular Numbers**:
 \begin{equation} \label{eq:triangular}
 T_n = \sum_{k=1}^n k = \frac{n(n+1)}{2}
 \end{equation}
 
-**Proof**: 
+\subsubsection{Proof}
 Triangular numbers are formed by stacking rows of the first $n$ integers, creating a *triangular* geometric pattern, e.g. for $n=10$:
 
 ![](img/triangular) \
