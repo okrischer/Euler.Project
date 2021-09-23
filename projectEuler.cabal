@@ -37,7 +37,7 @@ library
     default-language: Haskell2010
 
 executable projectEuler
-    main-is: Multiples.lhs
+    main-is: Fibonacci.lhs
     -- Modules included in this executable, other than Main.
     other-modules:
         Main
