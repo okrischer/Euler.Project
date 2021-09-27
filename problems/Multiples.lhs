@@ -6,7 +6,7 @@ If we list all the natural numbers below 10 that are multiples of 3 or 5, we get
 \subsection{Naive solution based on list comprehension}
 
 \begin{code}
-module Multiples where
+import Criterion.Main
 sumMultiplesNaive :: Integer -> Integer
 sumMultiplesNaive n = 
     sum [x | x <- [1..n-1], x `rem` 3 == 0 || x `rem` 5 == 0]
@@ -65,3 +65,16 @@ It's easy to see that the number of elements in such a *triangle* is the sum of 
 
 Thus, the number of elements in this rectangle is $n(n+1)$.
 Since such a rectangle has the double size of the underlying *triangular number*, the size of the *triangular number* is: $\frac{n(n+1)}{2} \blacksquare$
+
+\subsection{Benchmarking the solutions}
+
+\begin{code}
+main = defaultMain [
+  bgroup "solution" [ bench "naive"    $ whnf sumMultiplesNaive 1000
+                    , bench "optim"    $ whnf sumMultiplesOptim 1000
+                    , bench "optLarge" $ whnf sumMultiplesOptim 1000000
+                    ]
+  ]
+\end{code}
+
+![](img/bench001) \
