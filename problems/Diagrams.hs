@@ -3,7 +3,7 @@
 {-# LANGUAGE TypeFamilies #-}
 
 module Diagrams where
-import Diagrams.Prelude
+import Diagrams.Prelude ()
 import Diagrams.Backend.Cairo.CmdLine ( mainWith )
 import DiaLib ( oblong )
 
