@@ -2,6 +2,7 @@ dist-newstyle/
 img/
 *.html
 *.pdf
+*.md
 *.yaml
 *.cabal
 *.swp
