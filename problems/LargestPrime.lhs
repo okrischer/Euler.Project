@@ -169,8 +169,8 @@ main = defaultMain [
 \begin{code}
 main :: IO ()
 main = defaultMain [
-  bgroup "largestPF" [ bench "naive"      $ whnf largestPF  600851475143
-                     , bench "imp" $ whnf largestPF' 600851475143
+  bgroup "largestPF" [ bench "naive" $ whnf largestPF  600851475143
+                     , bench "imp"   $ whnf largestPF' 600851475143
                      ]
   ]
 \end{code}

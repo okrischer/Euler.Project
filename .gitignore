@@ -1,7 +1,5 @@
 dist-newstyle/
+benchmarks/
 img/
 *.html
-*.md
-*.yaml
-*.cabal
-*.swp
+*.pdf
