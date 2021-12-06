@@ -9,13 +9,13 @@ exceed four million, find the sum of the even-valued terms!}
 
 \subsection{Recursive Implementation with Memoization}
 
-\begin{code}
-{-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-import Criterion.Main ( defaultMain, bench, bgroup, whnf )
-\end{code}
-This recursive implementation with memoization ist substancially faster then a
+The following implementation with memoization ist substancially faster then a
 naive recursive implementation, which would follow the mathematical rule:
-$fib (n) = fib (n-1) + fib (n-2)$.
+
+\begin{equation*}
+fib (n) = fib (n-1) + fib (n-2)
+\end{equation*}
+
 \begin{code}
 fibMem :: Int -> Int
 fibMem limit = sum $ filter even $ run limit [1,1]
@@ -50,8 +50,9 @@ Looking at the Fibonacci sequence
 \begin{equation*}
 1, 1, \textbf{2}, 3, 5, \textbf{8}, 13, 21, \textbf{34}, 55, 89, \textbf{144}, \ldots
 \end{equation*}
-we can easily see that every third Fibonacci number is even. If this holds true
-for all Fibonacci numbers, we can get rid of the test for \texttt{even} like this:
+we can easily see that every third Fibonacci number is even.
+If this holds true for all Fibonacci numbers, we can get rid of the test for \texttt{even} like this:
+
 \begin{code}
 fibOpt :: Int -> Int
 fibOpt limit = run limit (1,1,2) 0
@@ -68,13 +69,15 @@ fibOpt limit = run limit (1,1,2) 0
 \subsection{Fibonacci Numbers}
 \subsubsection{Theorem}
 Every third Fibonacci number is even.
+
 \subsubsection{Proof}
 
-Following the rule for Fibonacci numbers that every next number is the sum
-of it's two predecessors or more rigourus 
+Following the rule for Fibonacci numbers that every next number is the sum of it's two predecessors or more rigourus
+
 \begin{equation*}
 fib (n) = fib (n-1) + fib (n-2), where fib\{0,1\} = 1
 \end{equation*}
+
 we get an \emph{even} number if both preceeding numbers are odd,
 and an \emph{odd} number if only one of the predecessors is odd.
 Given the starting values of $fib(n)$ with $\{1,1\}$ (both \emph{odd}),
@@ -83,6 +86,7 @@ We now have a sequence of $\{1,1,2\}$, which is $\{odd, odd, even\}$.
 Given this sequence of the first three Fibonacci numbers $\{a,b,c\}$,
 we can show that every following sequence of three numbers $\{a', b', c'\}$
 must also be $\{odd, odd, even\}$:
+
 \begin{subequations}
 \begin{equation}
 \{a,b,c\}=\{odd,odd,even\} \implies \{a',b',c'\}=\{odd,odd,even\}
@@ -95,17 +99,3 @@ must also be $\{odd, odd, even\}$:
 &=\{odd, odd, even\}
 \end{align}
 \end{subequations}
-
-\subsection{Benchmarking the solutions}
-
-\begin{code}
-main :: IO ()
-main = defaultMain [
-  bgroup "solution" [ bench "fibMem" $ whnf fibMem 4000000
-                    , bench "fibImp" $ whnf fibImp 4000000
-                    , bench "fibOpt" $ whnf fibOpt 4000000
-                    ]
-  ]
-\end{code}
-
-![benchmark](img/bench002) \

@@ -2,9 +2,9 @@ from: latex+lhs
 to: html5
 
 input-files:
-- problems/Multiples.lhs
+- problems/LargestPrime.lhs
 
-output-file: Multiples.html
+output-file: problems/LargestPrime.html
 
 table-of-contents: false
 number-sections: true
@@ -12,7 +12,7 @@ standalone: true
 
 metadata:
   author: Oliver Krischer
-  title:  'Problem 001 - Multiples'
+  title:  'Project Euler'
 
 html-math-method:
   method: mathjax
@@ -20,5 +20,6 @@ html-math-method:
 
 variables:
   fontsize: 12pt
+
 highlight-style: tango
 default-image-extension: ".svg"

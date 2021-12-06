@@ -2,9 +2,9 @@ from: latex+lhs
 to: pdf
 
 input-files:
-- problems/Multiples.lhs
+- problems/LargestPrime.lhs
 
-output-file: Multiples.pdf
+output-file: problems/LargestPrime.pdf
 
 table-of-contents: true
 number-sections: true
@@ -12,7 +12,7 @@ toc-depth: 2
 
 metadata:
   author: Oliver Krischer
-  title:  'Problem 001 - Multiples'
+  title:  'Project Euler'
 
 variables:
     documentclass: scrartcl

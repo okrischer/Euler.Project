@@ -20,7 +20,7 @@ The starting point for developing an efficient solution is the following idea: i
 \begin{code}
 sumMultiplesOptim :: Integer -> Integer
 sumMultiplesOptim  n = divBy3 + divBy5 - divBy15
-  where divBy3  = sumDivisibleBy 3 n 
+  where divBy3  = sumDivisibleBy 3 n
         divBy5  = sumDivisibleBy 5 n
         divBy15 = sumDivisibleBy 15 n
 \end{code}
@@ -33,7 +33,7 @@ If we apply our naive implementation on \texttt{sumDivisibleBy} for 3 and 5 we w
 
 Thus, we can apply the equation for \emph{Triangular Numbers}
 \begin{equation*}
-T_n = \sum_{k=1}^n k = 1+2+3+\cdots+n = \frac{n*(n+1)}{2} 
+T_n = \sum_{k=1}^n k = 1+2+3+\cdots+n = \frac{n(n+1)}{2} 
 \end{equation*}
 on our function and we get:
 
@@ -56,11 +56,11 @@ T_n = \sum_{k=1}^n k = \frac{n(n+1)}{2}
 \subsubsection{Proof}
 Triangular numbers are formed by stacking rows of the first n integers, creating a \emph{triangular geometric pattern}, e.g. for n=10:
 
-\includegraphics{img/triangular}
+\includegraphics{../img/triangular}
 
 It's easy to see that the number of elements in such a triangle is the sum of the integers from 1 to n. If we now geometrically combine two copies of $T_n$, the resulting rectancle will have side lengths of n and n+1:
 
-\includegraphics{img/oblong}
+\includegraphics{../img/oblong}
 
 Thus, the number of elements in this rectangle is $n(n+1)$.
 Since such a rectangle has the double size of the underlying triangular number, the size of the triangular number is: 

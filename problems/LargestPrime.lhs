@@ -10,7 +10,6 @@ The prime factors of 13195 are 5, 7, 13 and 29.
 import Control.Monad ( replicateM_ )
 import Control.Monad.ST ( runST, ST )
 import Data.STRef ( newSTRef, readSTRef, writeSTRef )
-import Criterion.Main ( defaultMain, bench, bgroup, whnf )
 \end{code}
 
 This recursive implementation has four parts:
@@ -84,8 +83,6 @@ primes :: [Integer]
 primes = 2 : filter isPrime'' [3..]
 \end{code}
 
-![benchmark results of prime tests](img/bench003-1) \
-
 \subsection{Imperative Approach}
 As we have already seen, it is sometimes convinient to write code inspired by imperative programming.
 Not only makes this the code more compact, but also in many cases more efficient.
@@ -110,9 +107,7 @@ largest (n,l,f) | n > 1 && f^2 < n = largest (num, last, fact+2)
                 where (num, last, fact) = factorize (n,l,f)
 \end{code}
 
-![benchmark results for imperative approach](img/bench003-3) \
-
-As we can see from the benchmark report above, this imperative solution is much more efficient than our naive appoach (about 200 times faster).
+This imperative solution is much more efficient than our naive appoach (about 200 times faster).
 Without going into details of asymptotic calculation, we can easily see why:
 where our naive solution had to iterate through every second element in the search space, a call to \texttt{factorize} in the imperative solution reduces the search space by factor \texttt{f}. 
 And there is even no need of explicit primality checking, because every new found factor must be prime, as all lower factors have already been removed by earlyer calls to \texttt{factorize}.
@@ -141,36 +136,4 @@ fibST n = do
     writeSTRef a y
     writeSTRef b $! (x+y))
   readSTRef a
-\end{code}
-
-![benchmark results for imperative programming](img/bench003-2) \
-
-\subsection{Benchmarking the solutions} \label{sec:bench}
-
-~~~haskell
-main :: IO ()
-main = defaultMain [
-  bgroup "primeTest" [ bench "naive" $ whnf isPrime   44560482149
-                     , bench "least" $ whnf isPrime'  44560482149
-                     , bench "prime" $ whnf isPrime'' 44560482149
-                     ]
-  ]
-~~~
-
-~~~haskell
-main :: IO ()
-main = defaultMain [
-  bgroup "imperative" [ bench "fibImp" $ whnf fibImp 10000
-                      , bench "fibMut" $ whnf fibMut 10000
-                      ]
-  ]
-~~~
-
-\begin{code}
-main :: IO ()
-main = defaultMain [
-  bgroup "largestPF" [ bench "naive" $ whnf largestPF  600851475143
-                     , bench "imp"   $ whnf largestPF' 600851475143
-                     ]
-  ]
 \end{code}
