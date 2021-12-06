@@ -2,10 +2,9 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module DiaLib ( oblong )
-where
+module DiaLib where
 import Diagrams.Prelude
-import Diagrams.Backend.Cairo.CmdLine
+import Diagrams.Backend.SVG.CmdLine
 
 sierpinski :: Int -> Diagram B
 sierpinski 1 = triangle 1

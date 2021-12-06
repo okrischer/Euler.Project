@@ -2,10 +2,10 @@
 {-# LANGUAGE FlexibleContexts #-}
 {-# LANGUAGE TypeFamilies #-}
 
-module Diagrams where
-import Diagrams.Prelude ()
-import Diagrams.Backend.Cairo.CmdLine ( mainWith )
-import DiaLib ( oblong )
+module Main where
+import Diagrams.Prelude
+import Diagrams.Backend.SVG.CmdLine
+import DiaLib
 
 main :: IO ()
 main = mainWith oblong
