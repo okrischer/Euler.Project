@@ -1,0 +1,24 @@
+\documentclass{scrreprt}
+\KOMAoptions{parskip=half*}
+\usepackage{mathtools}
+\numberwithin{equation}{chapter}
+\usepackage{hyperref}
+\hypersetup{hidelinks}
+\usepackage[chapter,newfloat=true]{minted}
+\usemintedstyle[haskell]{lovelace}
+\newminted[code]{haskell}{bgcolor=bgh}
+\newminted[spec]{haskell}{bgcolor=bgh}
+
+\begin{document}
+\definecolor{bgh}{rgb}{0.95,0.95,0.95}
+\title{Project Euler}
+\author{Oliver Krischer}
+\subtitle{Solutions to the problems in Haskell}
+\maketitle
+\tableofcontents
+
+\input{Problem001.lhs}
+\input{Problem002.lhs}
+\input{Problem003.lhs}
+
+\end{document}

@@ -1,4 +1,13 @@
-dist-newstyle/
-img/
-*.html
+_minted-Main/
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb*
+*.fls
+*.log
+*.out
 *.pdf
+*.xml
+*.gz
+*.toc
