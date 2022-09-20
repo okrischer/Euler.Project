@@ -7,7 +7,7 @@ If we list all the natural numbers below 10 that are multiples of 3 or 5, we get
 \section{Naive solution based on list comprehension}
 
 \begin{code}
-import Control.Exception (assert)
+module Problem001 where
 import Test.QuickCheck ( (==>), quickCheck, Property )
 
 sumMultiplesNaive :: Integer -> Integer
@@ -60,17 +60,19 @@ Since \texttt{sumDivisibleBy} represents a closed formula, the runtime complexit
 Besides checking the result with \mintinline{haskell}{assert}, we will test our functions with \mintinline{haskell}{QuickCheck}, which is especially helpful if we have multiple versions of the solution.
 
 \begin{code}
-sumMultiplesProp :: Integer -> Property
-sumMultiplesProp n = 
-    n >= 1 ==> sumMultiplesNaive n == sumMultiplesOptim n
+equalsOptNaive :: Integer -> Property
+equalsOptNaive n =
+    n > 9 ==> sumMultiplesNaive n == sumMultiplesOptim n
 \end{code}
 
-Executing the tests within \mintinline{haskell}{main}:
+Executing the tests with our \mintinline{haskell}{test}-method:
 
 \begin{code}
-main :: IO ()
-main = do
-    assert (sumMultiplesNaive 1000 == 233168)
-        putStrLn "+++ OK, result is correct."
-    quickCheck sumMultiplesProp
+test :: IO ()
+test = do
+    putStrLn "------- testing Problem001"
+    if sumMultiplesNaive 1000 == 233168
+        then putStrLn "+++ OK, result is correct."
+        else error "result is wrong."
+    quickCheck equalsOptNaive
 \end{code}

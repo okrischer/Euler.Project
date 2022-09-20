@@ -3,9 +3,12 @@ _minted-Main/
 *.bbl
 *.bcf
 *.blg
+*.exe
 *.fdb*
 *.fls
+*.hi
 *.log
+*.o
 *.out
 *.pdf
 *.xml

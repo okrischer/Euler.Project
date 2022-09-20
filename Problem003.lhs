@@ -7,15 +7,15 @@ The prime factors of 13195 are 5, 7, 13 and 29.
 
 \begin{code}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-import Control.Exception ( assert )
+module Problem003 where
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
 
 As we have already seen, it is sometimes convenient to write code inspired by imperative programming.
 
 \begin{code}
-largestPF :: Integer -> Integer
-largestPF number
+lpfImp :: Integer -> Integer
+lpfImp number
     | num == 1  = last
     | otherwise = num
     where
@@ -42,8 +42,8 @@ Hence, this solution is quite fast, even in a functional setting.
 \section{Functional Approach}
 
 \begin{code}
-largestPF' :: Integer -> Integer
-largestPF' n = maximum (listPF n 0)
+lpfFun :: Integer -> Integer
+lpfFun n = maximum (listPF n 0)
 
 listPF :: Integer -> Int -> [Integer]
 listPF 0 _ = []
@@ -70,22 +70,22 @@ This is one one of the main advantages of the functional paradigm.
 \section{Testing}
 
 \begin{code}
-largestPfProp1 :: Integer -> Property
-largestPfProp1 n = n > 1 ==> largestPF n `divides` n
+lpfImpDevidesN :: Integer -> Property
+lpfImpDevidesN n = n > 1 ==> lpfImp n `divides` n
 
-largestPfProp2 :: Integer -> Property
-largestPfProp2 n = n > 1 ==> largestPF' n `divides` n
+lpfFunDevidesN :: Integer -> Property
+lpfFunDevidesN n = n > 1 ==> lpfFun n `divides` n
 
-largestPfProp3 :: Integer -> Property
-largestPfProp3 n = n > 1 ==> largestPF' n == largestPF n
+equalsImpFun :: Integer -> Property
+equalsImpFun n = n > 1 ==> lpfFun n == lpfImp n
 
-main :: IO ()
-main = do
-    assert (largestPF 600851475143 == 6857)
-        putStrLn "+++ OK, largestPF is correct"
-    assert (largestPF' 600851475143 == 6857)
-        putStrLn "+++ OK, largestPF' is correct"
-    quickCheck largestPfProp1
-    quickCheck largestPfProp2
-    quickCheck largestPfProp3
+test :: IO ()
+test = do
+    putStrLn "------- testing Problem003"
+    if lpfImp 600851475143 == 6857
+        then putStrLn "+++ OK, result is correct."
+        else error "result is wrong."
+    quickCheck lpfImpDevidesN
+    quickCheck lpfFunDevidesN
+    quickCheck equalsImpFun
 \end{code}

@@ -7,8 +7,7 @@ A palindromic number reads the same both ways. The largest palindrome made from 
 \section{Naive solution with exhaustive search}
 
 \begin{code}
-import Control.Exception ( assert )
-import Test.QuickCheck
+module Problem004 where
 \end{code}
 
 Multiplying two 3-digits numbers gives numbers with at most six digits ($999 \cdot 999 = 998001$).
@@ -33,7 +32,7 @@ Good in this context means that the candidates are more likely to be palindromes
 The first thing to do is to take care that candidates are not generated twice; therefore we constrain $n$ to be greater or equal to $m$.
 This reduces candidates from 810,000 to 405,450.
 
-Second, we check if the candidates could be a palindrome by checking if they are divisible by 11.
+Second, we check if the candidates could be a palindrome by testing if they are divisible by 11.
 Since 11 is a prime number, one of the factors $m$ or $n$ must be divisible by 11.
 This reduces candidates to 69,660, which is less than a tenth of the original list; so we are done here.
 
@@ -60,10 +59,13 @@ largPalOpt = maximum $ filter (\x -> x == reverseNum x) candidates
 \section{Testing}
 
 \begin{code}
-main :: IO ()
-main = do
-    assert (largPalNaive == "906609")
-        putStrLn "+++ OK, largPalNaive is correct"
-    assert (largPalOpt == 906609)
-        putStrLn "+++ OK, largPalOpt is correct"
+test :: IO ()
+test = do
+    putStrLn "------- testing Problem004"
+    if largPalNaive == "906609"
+        then putStrLn "+++ OK, result is correct."
+        else error "largPalNaive is wrong."
+    if largPalOpt == 906609
+        then putStrLn "+++ OK, result is correct."
+        else error "largPalOpt is wrong."
 \end{code}

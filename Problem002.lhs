@@ -13,7 +13,7 @@ exceed four million, find the sum of the even-valued terms.}
 
 \begin{code}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-import Control.Exception (assert)
+module Problem002 where
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
 
@@ -84,26 +84,22 @@ fibFun limit = sum $ takeWhile (<= limit) $ filter even fib
 
 \begin{code}
 
-fibProp1 :: Integer -> Property
-fibProp1 n = n >= 1 ==> fibImp n == fibMem n
+equalsImpMem :: Integer -> Property
+equalsImpMem n = n > 0 ==> fibImp n == fibMem n
 
-fibProp2 :: Integer -> Property
-fibProp2 n = n >= 1 ==> fibImp n == fibOpt n
+equalsImpOpt :: Integer -> Property
+equalsImpOpt n = n > 0 ==> fibImp n == fibOpt n
 
-fibProp3 :: Integer -> Property
-fibProp3 n = n >= 1 ==> fibFun n == fibOpt n
+equalsFunOpt :: Integer -> Property
+equalsFunOpt n = n > 0 ==> fibFun n == fibOpt n
 
-main :: IO ()
-main = do
-    assert (fibMem 4000000 == 4613732)
-        putStrLn "+++ OK, fibMem is correct."
-    assert (fibImp 4000000 == 4613732)
-        putStrLn "+++ OK, fibImp is correct."
-    assert (fibOpt 4000000 == 4613732)
-        putStrLn "+++ OK, fibOpt is correct."
-    assert (fibFun 4000000 == 4613732)
-        putStrLn "+++ OK, fibFun is correct."
-    quickCheck fibProp1
-    quickCheck fibProp2
-    quickCheck fibProp3
+test :: IO ()
+test = do
+    putStrLn "------- testing Problem002"
+    if fibMem 4000000 == 4613732
+        then putStrLn "+++ OK, result is correct."
+        else error "result is wrong."
+    quickCheck equalsImpMem
+    quickCheck equalsImpOpt
+    quickCheck equalsFunOpt
 \end{code}
