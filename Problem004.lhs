@@ -59,13 +59,8 @@ largPalOpt = maximum $ filter (\x -> x == reverseNum x) candidates
 \section{Testing}
 
 \begin{code}
-test :: IO ()
-test = do
-    putStrLn "------- testing Problem004"
-    if largPalNaive == "906609"
-        then putStrLn "+++ OK, result is correct."
-        else error "largPalNaive is wrong."
-    if largPalOpt == 906609
-        then putStrLn "+++ OK, result is correct."
-        else error "largPalOpt is wrong."
+main :: IO ()
+main = if read largPalNaive == largPalOpt
+    then putStrLn "+++ OK, naive equals opt."
+    else putStrLn "--- ER, naive and opt differ."
 \end{code}

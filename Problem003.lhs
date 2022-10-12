@@ -79,12 +79,8 @@ lpfFunDevidesN n = n > 1 ==> lpfFun n `divides` n
 equalsImpFun :: Integer -> Property
 equalsImpFun n = n > 1 ==> lpfFun n == lpfImp n
 
-test :: IO ()
-test = do
-    putStrLn "------- testing Problem003"
-    if lpfImp 600851475143 == 6857
-        then putStrLn "+++ OK, result is correct."
-        else error "result is wrong."
+main :: IO ()
+main = do
     quickCheck lpfImpDevidesN
     quickCheck lpfFunDevidesN
     quickCheck equalsImpFun

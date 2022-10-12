@@ -93,12 +93,8 @@ equalsImpOpt n = n > 0 ==> fibImp n == fibOpt n
 equalsFunOpt :: Integer -> Property
 equalsFunOpt n = n > 0 ==> fibFun n == fibOpt n
 
-test :: IO ()
-test = do
-    putStrLn "------- testing Problem002"
-    if fibMem 4000000 == 4613732
-        then putStrLn "+++ OK, result is correct."
-        else error "result is wrong."
+main :: IO ()
+main = do
     quickCheck equalsImpMem
     quickCheck equalsImpOpt
     quickCheck equalsFunOpt
