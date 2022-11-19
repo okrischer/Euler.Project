@@ -3,13 +3,13 @@ The prime factors of 13195 are 5, 7, 13 and 29.
 
 \textbf{What is the largest prime factor of the number 600851475143?}
 
-\section{Functional Approach}
-
 \begin{code}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 import Criterion.Main
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
+
+\section{Functional Approach}
 
 With this approach, we generate an infininte but lazy evaluated list of prime numbers, from which we take the potential prime factors.
 The factors are evaluated (if they divide the given number) until their square exceeds the number.
@@ -48,33 +48,10 @@ After dividing out all prime factors $n$ will equal to 1.
 
 A step by step description of the algorithm would be:
 \begin{enumerate}
-\item Start with 2: while $n$ is divisible by 2, divide $n$ by 2. After this step $n$ is an odd number.
-\item Set the upper limit of $k$ to $\sqrt{n}$. Every number $n$ can at most have one prime factor greater than its square root. If $k$ exceeds the square root, the reamining number will be prime.
-\item Iterate through the odd $k$s starting from 3 until $n = 1$ or $k > \sqrt{n}$: for every $k$, completely factor out each $k$. Repeat step 2 for every $k$.
-\item Check if the remaining $n$ is greater than 1. If so, return $n$, otherwise return the largest prime factor found. This follows from step 2.
+\item Start with $k=2$: while $n$ is divisible by 2, divide $n$ by 2. After this step $n$ is an odd number.
+\item Iterate through the odd $k$s starting from 3 until $n = 1$ or $k^2 > n$: every number $n$ can at most have one prime factor greater than its square root. If $k^2$ exceeds $n$, the reamining number will be prime. For every $k$, completely factor out each $k$. 
+\item Check if the remaining $n$ equals 1. If so, return the largest prime factor found, otherwise return $n$.
 \end{enumerate}
-
-\begin{julia}
-function largest_factor_opt(n)
-    k = 3
-    max_factor = 1
-    
-    while n % 2 == 0
-        max_factor = 2
-        n = n ÷ 2
-    end
-    
-    while n > 1 && k^2 <= n
-        while n % k == 0
-            max_factor = k
-            n = n ÷ k
-        end
-        k += 2
-    end
-    
-    n > 1 ? n : max_factor
-end
-\end{julia}
 
 The imperative solution could be implemented like so with Haskell:
 
@@ -84,15 +61,15 @@ lpfImp number
     | num == 1  = last
     | otherwise = num
     where
-        (n,l,f) = factorize (number, 1, 2)
+        (n,l,k) = factorize (number, 1, 2)
         (num, last, fact) = largest (n,l,3)
 
-factorize (n,l,f) | f `divides` n = factorize (n `div` f, f, f)
-                  | otherwise     = (n,l,f)
+factorize (n,l,k) | k `divides` n = factorize (n `div` k, k, k)
+                  | otherwise     = (n,l,k)
 
-largest (n,l,f) | n > 1 && f^2 <= n = largest (num, last, fact+2)
-                | otherwise        = (n,l,f)
-                where (num, last, fact) = factorize (n,l,f)
+largest (n,l,k) | n > 1 && k^2 <= n = largest (num, last, fact+2)
+                | otherwise        = (n,l,k)
+                where (num, last, fact) = factorize (n,l,k)
 
 divides :: Integer -> Integer -> Bool
 divides d n = rem n d == 0

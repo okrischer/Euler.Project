@@ -9,13 +9,13 @@ By starting with 1 and 2, the first 10 terms will be:
 \textbf{By considering the terms in the Fibonacci sequence whose values do not
 exceed four million, find the sum of the even-valued terms.}
 
-\section{Recursive Implementation with Memoization}
-
 \begin{code}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 import Criterion.Main
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
+
+\section{Recursive Implementation with Memoization}
 
 The following implementation with memoization ist substancially faster then a
 naive recursive implementation, which would follow the mathematical rule:
@@ -103,10 +103,10 @@ main = do
 \begin{spec}
 -- alternative main for benchmarking
 main = defaultMain [
-  bgroup "fib" [ bench "fibMem"  $ whnf fibMem 4000000
-               , bench "fibImp"  $ whnf fibImp 4000000
-               , bench "fibOpt"  $ whnf fibOpt 4000000
-               , bench "fibFun"  $ whnf fibFun 4000000
+  bgroup "fib" [ bench "Mem"  $ whnf fibMem 4000000
+               , bench "Imp"  $ whnf fibImp 4000000
+               , bench "Opt"  $ whnf fibOpt 4000000
+               , bench "Fun"  $ whnf fibFun 4000000
                ]
   ]
 \end{spec}

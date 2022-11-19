@@ -4,12 +4,13 @@ If we list all the natural numbers below 10 that are multiples of 3 or 5, we get
 
 \textbf{Find the sum of all the multiples of 3 or 5 below 1000.}
 
+\begin{code}
+import Test.QuickCheck ( (==>), quickCheck, Property )
+\end{code}
+
 \section{Naive solution based on list comprehension}
 
 \begin{code}
-module Problem001 where
-import Test.QuickCheck ( (==>), quickCheck, Property )
-
 sumMultiplesNaive :: Int -> Int
 sumMultiplesNaive n = 
     sum [x | x <- [1..n-1], x `rem` 3 == 0 || x `rem` 5 == 0]

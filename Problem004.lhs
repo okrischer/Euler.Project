@@ -6,10 +6,6 @@ A palindromic number reads the same both ways. The largest palindrome made from 
 
 \section{Naive solution with exhaustive search}
 
-\begin{code}
-module Problem004 where
-\end{code}
-
 Multiplying two 3-digits numbers gives numbers with at most six digits ($999 \cdot 999 = 998001$).
 Thus, we are searching for a 6-digit number, having a `9' in the first place (most significand digit). \\
 The smallest of these numbers is 900900, beeing the product $910 \times 990$.
