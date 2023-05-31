@@ -40,10 +40,10 @@ While the recursive implementation was based on working with lists, the followin
 \begin{code}
 fibImp :: Integer -> Integer
 fibImp limit = run limit (1,1) 0
-    where run limit (a,b) sum
-            | c > limit = sum
-            | even c = run limit (b,c) (sum+c)
-            | otherwise = run limit (b,c) sum
+    where run limit (a,b) acc
+            | c > limit = acc
+            | even c = run limit (b,c) (acc+c)
+            | otherwise = run limit (b,c) acc
             where c = a + b
 \end{code}
 
@@ -61,9 +61,9 @@ Thus, we can get rid of the test for \mintinline{haskell}{even} like this:
 \begin{code}
 fibOpt :: Integer -> Integer
 fibOpt limit = run limit (1,1,2) 0
-    where run limit (a, b, c) sum 
-            | c > limit = sum
-            | otherwise = run limit (a', b', c') (sum+c)
+    where run limit (a, b, c) acc
+            | c > limit = acc
+            | otherwise = run limit (a', b', c') (acc+c)
             where 
                 a' = c  + b
                 b' = a' + c
@@ -76,8 +76,8 @@ Using lazy list evaluation and higher order functions we can implement a more id
 
 \begin{code}
 fibFun :: Integer -> Integer
-fibFun limit = sum $ takeWhile (<= limit) $ filter even fib
-    where fib = 1:1:zipWith (+) fib (tail fib)
+fibFun limit = sum $ takeWhile (<= limit) $ filter even $ fibs 1 2
+    where fibs a b = a : fibs b (a + b)
 \end{code}
 
 \section{Testing}

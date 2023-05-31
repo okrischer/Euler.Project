@@ -9,15 +9,14 @@ import Criterion.Main
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
 
-\section{Functional Approach}
+\section{Checking for Prime Numbers}
 
 With this approach, we generate an infininte but lazy evaluated list of prime numbers, from which we take the potential prime factors.
-The factors are evaluated (if they divide the given number) until their square exceeds the number.
-Therfore the list will not be evaluated to infinity.
+The prime numbers are evaluated (if they divide the given number) until their square exceeds the number.
 
 \begin{code}
-lpfFun :: Integer -> Integer
-lpfFun n = maximum (listPF n 0)
+checkPrimes :: Integer -> Integer
+checkPrimes n = maximum (listPF n 0)
 
 listPF :: Integer -> Int -> [Integer]
 listPF 0 _ = []
@@ -34,7 +33,7 @@ sieve :: [Integer] -> [Integer]
 sieve (p:ns) = p:sieve [n | n <- ns, rem n p /= 0]
 \end{code}
 
-\section{Imperative Approach}
+\section{Factor out all Factors}
 
 The key to this solution is a simple idea:
 \emph{instead of just checking if a number divides $n$ we actually divide $n$ by this number}.
@@ -53,11 +52,11 @@ A step by step description of the algorithm would be:
 \item Check if the remaining $n$ equals 1. If so, return the largest prime factor found, otherwise return $n$.
 \end{enumerate}
 
-The imperative solution could be implemented like so with Haskell:
+This solution can be implemented like so:
 
 \begin{code}
-lpfImp :: Integer -> Integer
-lpfImp number
+factorOut :: Integer -> Integer
+factorOut number
     | num == 1  = last
     | otherwise = num
     where
@@ -78,29 +77,28 @@ divides d n = rem n d == 0
 \section{Testing}
 
 \begin{code}
-lpfImpDevidesN :: Integer -> Property
-lpfImpDevidesN n = n > 1 ==> lpfImp n `divides` n
+factorOutDevidesN :: Integer -> Property
+factorOutDevidesN n = n > 1 ==> factorOut n `divides` n
 
-lpfFunDevidesN :: Integer -> Property
-lpfFunDevidesN n = n > 1 ==> lpfFun n `divides` n
+checkPrimesDevidesN :: Integer -> Property
+checkPrimesDevidesN n = n > 1 ==> checkPrimes n `divides` n
 
-equalsImpFun :: Integer -> Property
-equalsImpFun n = n > 1 ==> lpfFun n == lpfImp n
+equalResults :: Integer -> Property
+equalResults n = n > 1 ==> checkPrimes n == factorOut n
 \end{code}
 
 \begin{code}
-main :: IO ()
 main = do
-    quickCheck lpfImpDevidesN
-    quickCheck lpfFunDevidesN
-    quickCheck equalsImpFun
+    quickCheck factorOutDevidesN
+    quickCheck checkPrimesDevidesN
+    quickCheck equalResults
 \end{code}
 
 \begin{spec}
 -- alternative main for benchmarking
 main = defaultMain [
-  bgroup "lpf" [ bench "Imp"  $ whnf lpfImp 600851475143
-               , bench "Fun"  $ whnf lpfFun 600851475143
+  bgroup "lpf" [ bench "factor" $ whnf factorOut   600851475143
+               , bench "check"  $ whnf checkPrimes 600851475143
                ]
   ]
 \end{spec}
