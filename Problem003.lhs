@@ -55,7 +55,6 @@ A step by step description of the algorithm would be:
 This solution can be implemented like so:
 
 \begin{code}
-factorOut :: Integer -> Integer
 factorOut number
     | num == 1  = last
     | otherwise = num
@@ -64,10 +63,10 @@ factorOut number
         (num, last, fact) = largest (n,l,3)
 
 factorize (n,l,k) | k `divides` n = factorize (n `div` k, k, k)
-                  | otherwise     = (n,l,k)
+                  | otherwise = (n,l,k)
 
 largest (n,l,k) | n > 1 && k^2 <= n = largest (num, last, fact+2)
-                | otherwise        = (n,l,k)
+                | otherwise = (n,l,k)
                 where (num, last, fact) = factorize (n,l,k)
 
 divides :: Integer -> Integer -> Bool

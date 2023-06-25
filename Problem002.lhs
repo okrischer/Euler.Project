@@ -11,6 +11,7 @@ exceed four million, find the sum of the even-valued terms.}
 
 \begin{code}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
+module Problem002 where
 import Criterion.Main
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
@@ -33,17 +34,27 @@ fibMem limit = sum $ filter even $ run limit [1,1]
             where next = a + b
 \end{code}
 
+\section{Functional approach}
+
+Using lazy list evaluation and higher order functions we can implement a more idiomatic Haskell solution:
+
+\begin{code}
+fibFun :: Integer -> Integer
+fibFun limit = sum $ takeWhile (<= limit) $ filter even $ fibs 1 2
+    where fibs a b = a : fibs b (a + b)
+\end{code}
+
 \section{Imperative Implementation}
 
 While the recursive implementation was based on working with lists, the following implementation mimics an imperative solution in which the current values and the accumulated \texttt{sum} are modified and passed to the next recursive call:
 
 \begin{code}
 fibImp :: Integer -> Integer
-fibImp limit = run limit (1,1) 0
-    where run limit (a,b) acc
+fibImp limit = run (1,1) 0
+    where run (a,b) acc
             | c > limit = acc
-            | even c = run limit (b,c) (acc+c)
-            | otherwise = run limit (b,c) acc
+            | even c = run (b,c) (acc+c)
+            | otherwise = run (b,c) acc
             where c = a + b
 \end{code}
 
@@ -60,24 +71,14 @@ Thus, we can get rid of the test for \mintinline{haskell}{even} like this:
 
 \begin{code}
 fibOpt :: Integer -> Integer
-fibOpt limit = run limit (1,1,2) 0
-    where run limit (a, b, c) acc
+fibOpt limit = run (1,1,2) 0
+    where run (a, b, c) acc
             | c > limit = acc
-            | otherwise = run limit (a', b', c') (acc+c)
+            | otherwise = run (a', b', c') (acc+c)
             where 
                 a' = c  + b
                 b' = a' + c
                 c' = a' + b'
-\end{code}
-
-\section{Functional approach}
-
-Using lazy list evaluation and higher order functions we can implement a more idiomatic Haskell solution:
-
-\begin{code}
-fibFun :: Integer -> Integer
-fibFun limit = sum $ takeWhile (<= limit) $ filter even $ fibs 1 2
-    where fibs a b = a : fibs b (a + b)
 \end{code}
 
 \section{Testing}
