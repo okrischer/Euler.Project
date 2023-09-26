@@ -12,7 +12,7 @@ exceed four million, find the sum of the even-valued terms.}
 \begin{code}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
 module Problem002 where
-import Criterion.Main
+import Criterion.Main ()
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
 
@@ -95,6 +95,7 @@ equalsFunOpt n = n > 0 ==> fibFun n == fibOpt n
 \end{code}
 
 \begin{code}
+main :: IO ()
 main = do
     quickCheck equalsImpMem
     quickCheck equalsImpOpt

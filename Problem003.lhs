@@ -5,7 +5,8 @@ The prime factors of 13195 are 5, 7, 13 and 29.
 
 \begin{code}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-import Criterion.Main
+module Problem003 where
+import Criterion.Main ()
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
 
@@ -87,6 +88,7 @@ equalResults n = n > 1 ==> checkPrimes n == factorOut n
 \end{code}
 
 \begin{code}
+main :: IO ()
 main = do
     quickCheck factorOutDevidesN
     quickCheck checkPrimesDevidesN

@@ -18,6 +18,8 @@ Since 11 is a prime number, one of the factors $m$ or $n$ must be divisible by 1
 This reduces candidates to 69,660, which is less than a tenth of the original list; so we are done here.
 
 \begin{code}
+module Problem004 where
+
 candidates :: [Int]
 candidates = 
     [m * n | m <- [100..999], n <- [100..999],

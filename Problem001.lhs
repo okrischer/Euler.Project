@@ -5,6 +5,7 @@ If we list all the natural numbers below 10 that are multiples of 3 or 5, we get
 \textbf{Find the sum of all the multiples of 3 or 5 below 1000.}
 
 \begin{code}
+module Problem001 where
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
 
@@ -62,8 +63,7 @@ We will test our functions with \mintinline{haskell}{QuickCheck} by comparing th
 
 \begin{code}
 testProp :: Int -> Property
-testProp n =
-    n > 9 && n < 1000 ==> filterMultiples n == closedFormula n
+testProp n = n > 9 ==> filterMultiples n == closedFormula n
 \end{code}
 
 Executing the tests with \mintinline{haskell}{main}:
