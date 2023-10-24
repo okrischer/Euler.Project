@@ -11,8 +11,7 @@ exceed four million, find the sum of the even-valued terms.}
 
 \begin{code}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Problem002 where
-import Criterion.Main ()
+import Criterion.Main
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
 
@@ -92,10 +91,7 @@ equalsImpOpt n = n > 0 ==> fibImp n == fibOpt n
 
 equalsFunOpt :: Integer -> Property
 equalsFunOpt n = n > 0 ==> fibFun n == fibOpt n
-\end{code}
 
-\begin{code}
-main :: IO ()
 main = do
     quickCheck equalsImpMem
     quickCheck equalsImpOpt
@@ -106,9 +102,9 @@ main = do
 -- alternative main for benchmarking
 main = defaultMain [
   bgroup "fib" [ bench "Mem"  $ whnf fibMem 4000000
+               , bench "Fun"  $ whnf fibFun 4000000
                , bench "Imp"  $ whnf fibImp 4000000
                , bench "Opt"  $ whnf fibOpt 4000000
-               , bench "Fun"  $ whnf fibFun 4000000
                ]
   ]
 \end{spec}

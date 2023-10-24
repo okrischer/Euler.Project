@@ -5,8 +5,7 @@ The prime factors of 13195 are 5, 7, 13 and 29.
 
 \begin{code}
 {-# OPTIONS_GHC -Wno-incomplete-patterns #-}
-module Problem003 where
-import Criterion.Main ()
+import Criterion.Main
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
 
@@ -17,21 +16,19 @@ The prime numbers are evaluated (if they divide the given number) until their sq
 
 \begin{code}
 checkPrimes :: Integer -> Integer
-checkPrimes n = maximum (listPF n 0)
+checkPrimes n = maximum (getPF n primes)
 
-listPF :: Integer -> Int -> [Integer]
-listPF 0 _ = []
-listPF n i
+getPF :: Integer -> [Integer] -> [Integer]
+getPF n primes@(p:ps)
     | p*p > n = [n]
-    | p `divides` n = p:listPF (n `div` p) 0
-    | otherwise = listPF n (i+1)
-    where p = primes!!i
+    | p `divides` n = p:getPF (n `div` p) primes
+    | otherwise = getPF n ps
 
 primes :: [Integer]
 primes = sieve [2..]
 
 sieve :: [Integer] -> [Integer]
-sieve (p:ns) = p:sieve [n | n <- ns, rem n p /= 0]
+sieve (x:xs) = x:sieve [y | y <- xs, rem y x /= 0]
 \end{code}
 
 \section{Factor out all Factors}
@@ -41,17 +38,10 @@ The key to this solution is a simple idea:
 
 Repeatedly dividing $n$ by its factors decreases n very fast, making early termination of the algorithm possible.
 
-The algoritm works as follows:\
+The algorithm works as follows:\
 for each integer number $k \geq 2$, if $k$ is a factor of $n$, divide $n$ by $k$ and completely divide out each $k$ before moving to the next $k$.
 When the next $k$ is a factor it will necessarily be prime, as all smaller factors have already been removed.
 After dividing out all prime factors $n$ will equal to 1.
-
-A step by step description of the algorithm would be:
-\begin{enumerate}
-\item Start with $k=2$: while $n$ is divisible by 2, divide $n$ by 2. After this step $n$ is an odd number.
-\item Iterate through the odd $k$s starting from 3 until $n = 1$ or $k^2 > n$: every number $n$ can at most have one prime factor greater than its square root. If $k^2$ exceeds $n$, the reamining number will be prime. For every $k$, completely factor out each $k$. 
-\item Check if the remaining $n$ equals 1. If so, return the largest prime factor found, otherwise return $n$.
-\end{enumerate}
 
 This solution can be implemented like so:
 
@@ -88,7 +78,6 @@ equalResults n = n > 1 ==> checkPrimes n == factorOut n
 \end{code}
 
 \begin{code}
-main :: IO ()
 main = do
     quickCheck factorOutDevidesN
     quickCheck checkPrimesDevidesN
