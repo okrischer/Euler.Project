@@ -6,15 +6,27 @@
 \hypersetup{hidelinks}
 \usepackage[chapter,newfloat=true]{minted}
 \usemintedstyle[haskell]{lovelace}
-\newminted[code]{haskell}{bgcolor=bgc}
-\newminted[spec]{haskell}{bgcolor=bgc}
+\newminted[code]{haskell}{bgcolor=bgh}
+\newminted[spec]{haskell}{bgcolor=bgh}
+\usemintedstyle[crystal]{autumn}
+\newminted[crystal]{crystal}{bgcolor=bgc}
 
 \begin{document}
-\definecolor{bgc}{rgb}{0.96,0.96,0.98}
+\definecolor{bgh}{rgb}{0.96,0.96,0.98}
+\definecolor{bgc}{rgb}{0.95,0.98,0.95}
 \title{Project Euler}
 \author{Oliver Krischer}
-\subtitle{Solutions to the problems in Haskell}
+\subtitle{Solutions to the problems in Haskell and Crystal}
 \maketitle
+\begin{abstract}
+  Functional approaches to the solution of a problem are implemented in \emph{Haskell} (light blue background), while imperative approaches are implemented in \emph{Crystal} (light green background).
+
+  For most of the solutions simple benchmarks are provided.
+  Please keep in mind that those benchmarks have no absolute meaning, as no effort was taken to standarize the benchmarks results of both languages.
+  So, you can never say that \emph{Haskell} is faster than \emph{Crystal} or vice versa.
+
+  But, within a given language, the results have a relative meaning: if \mintinline{haskell}{someFunction} is 2.5 times faster than \mintinline{haskell}{anotherFunction}, this might be very well the case in a real environment.
+\end{abstract}
 \tableofcontents
 
 \input{Problem001.lhs}

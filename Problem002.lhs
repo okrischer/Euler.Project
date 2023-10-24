@@ -45,17 +45,20 @@ fibFun limit = sum $ takeWhile (<= limit) $ filter even $ fibs 1 2
 
 \section{Imperative Implementation}
 
-While the recursive implementation was based on working with lists, the following implementation mimics an imperative solution in which the current values and the accumulated \texttt{sum} are modified and passed to the next recursive call:
+While the recursive implementation was based on working with lists in Haskell, the following implementation gives an imperative solution in Crystal:
 
-\begin{code}
-fibImp :: Integer -> Integer
-fibImp limit = run (1,1) 0
-    where run (a,b) acc
-            | c > limit = acc
-            | even c = run (b,c) (acc+c)
-            | otherwise = run (b,c) acc
-            where c = a + b
-\end{code}
+\begin{crystal}
+def fib_imp(limit : Int32) : Int32
+  a = 1
+  b = 1
+  sum = 0
+  while b <= limit
+    sum += b if b.even?
+    a, b = b, a + b
+  end
+  sum
+end
+\end{crystal}
 
 \section{Further Improving}
 
@@ -66,45 +69,59 @@ Looking at the Fibonacci sequence
 \end{equation*}
 
 we can easily see that every third Fibonacci number is even.
-Thus, we can get rid of the test for \mintinline{haskell}{even} like this:
+Thus, we can get rid of the test for \mintinline{crystal}{even?} like this:
 
-\begin{code}
-fibOpt :: Integer -> Integer
-fibOpt limit = run (1,1,2) 0
-    where run (a, b, c) acc
-            | c > limit = acc
-            | otherwise = run (a', b', c') (acc+c)
-            where 
-                a' = c  + b
-                b' = a' + c
-                c' = a' + b'
-\end{code}
+\begin{crystal}
+def fib_opt(limit : Int32) : Int32
+  a = 1
+  b = 1
+  c = 2
+  sum = 0
+  while c <= limit
+    sum += c
+    a = b + c
+    b = a + c
+    c = a + b
+  end
+  sum
+end
+\end{crystal}
 
 \section{Testing}
 
 \begin{code}
-equalsImpMem :: Integer -> Property
-equalsImpMem n = n > 0 ==> fibImp n == fibMem n
-
-equalsImpOpt :: Integer -> Property
-equalsImpOpt n = n > 0 ==> fibImp n == fibOpt n
-
-equalsFunOpt :: Integer -> Property
-equalsFunOpt n = n > 0 ==> fibFun n == fibOpt n
+equalsMemFun :: Integer -> Property
+equalsMemFun n = n > 0 ==> fibMem n == fibFun n
 
 main = do
-    quickCheck equalsImpMem
-    quickCheck equalsImpOpt
-    quickCheck equalsFunOpt
+  quickCheck equalsMemFun
 \end{code}
+
+\section{Benchmark}
 
 \begin{spec}
 -- alternative main for benchmarking
 main = defaultMain [
   bgroup "fib" [ bench "Mem"  $ whnf fibMem 4000000
                , bench "Fun"  $ whnf fibFun 4000000
-               , bench "Imp"  $ whnf fibImp 4000000
-               , bench "Opt"  $ whnf fibOpt 4000000
                ]
   ]
 \end{spec}
+
+From this benchmark we see that \mintinline{haskell}{fibFun} is about twice as fast as \mintinline{haskell}{fibMem}.
+
+A benchmark for crystal can be generated like so:
+
+\begin{crystal}
+Benchmark.ips do |bm|
+  bm.report("fib_imp") do
+    fib_imp(4_000_000)
+  end
+  bm.report("fib_opt") do
+    fib_opt(4_000_000)
+  end
+end
+\end{crystal}
+
+From that, we see that \mintinline{crystal}{fib_opt} is about three times faster than \mintinline{crystal}{fib_imp}.
+
