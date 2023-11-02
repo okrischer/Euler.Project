@@ -65,7 +65,7 @@ The problem with this imperative solution in Haskell is that it is much slower t
 So, we'll give it a try with Crystal:
 
 \begin{crystal}
-def factor_naive(n : Int64) : Int64
+def factor_naive(n : Int64)
   factors = [] of Int64
   k = 2
   while k <= n
@@ -88,22 +88,19 @@ That works quite well ($\approx 10 \mu s$ per call), but there's still room for 
 
 \begin{crystal}
 def factor_opt(n : Int64)
-  factor = 1
   k = 3
   while n % 2 == 0
-    factor = 2
-    n //= k
+    n //= 2
   end
 
   while k * k <= n && n > 1
     while n % k == 0
-      factor = k
       n //= k
     end
     k += 2
   end
 
-  n > 1 ? n : factor
+  n > 1 ? n : k
 end
 \end{crystal}
 

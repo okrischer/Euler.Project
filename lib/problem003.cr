@@ -14,22 +14,19 @@ def factor_naive(n : Int64) : Int64
 end
 
 def factor_opt(n : Int64)
-  factor = 1
   k = 3
   while n % 2 == 0
-    factor = 2
-    n //= k
+    n //= 2
   end
 
   while k * k <= n && n > 1
     while n % k == 0
-      factor = k
       n //= k
     end
     k += 2
   end
 
-  n > 1 ? n : factor
+  n > 1 ? n : k
 end
 
 Benchmark.ips do |bm|
