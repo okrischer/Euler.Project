@@ -62,22 +62,22 @@ largest (n,l,k) | n > 1 && k^2 <= n = largest (num, last, fact+2)
 \end{code}
 
 The problem with this imperative solution in Haskell is that it is much slower than the solution based on lazy lists (about seven times slower).
-So, we'll give it a try with Crystal:
+So, we'll give it a try with Go:
 
-\begin{crystal}
-def factor_naive(n : Int64)
-  factors = [] of Int64
-  k = 2
-  while k <= n
-    while n % k == 0
-      factors << k
-      n //= k
-    end
+\begin{go}
+func factorNaive(n int) int {
+  factors := []int{}
+  k := 2
+  for k <= n {
+    for n%k == 0 {
+      factors = append(factors, k)
+      n /= k
+    }
     k += 1
-  end
-  factors.max
-end
-\end{crystal}
+  }
+  return slices.Max(factors)
+}
+\end{go}
 
 That works quite well ($\approx 10 \mu s$ per call), but there's still room for improvement:
 \begin{enumerate}
@@ -86,26 +86,28 @@ That works quite well ($\approx 10 \mu s$ per call), but there's still room for 
 \item the upper bound for k is $\sqrt{n}$, as there could be only one prime factor greater then $\sqrt{n}$; if n is greater than 1 after dividing out all factors, then n is the greatest factor. 
 \end{enumerate}
 
-\begin{crystal}
-def factor_opt(n : Int64)
-  k = 3
-  while n % 2 == 0
-    n //= 2
-  end
-
-  while k * k <= n && n > 1
-    while n % k == 0
-      n //= k
-    end
+\begin{go}
+func factorOpt(n int) int {
+  k := 3
+  for n%2 == 0 {
+    n /= 2
+  }
+  for k*k <= n && n > 1 {
+    for n%k == 0 {
+      n /= k
+    }
     k += 2
-  end
-
-  n > 1 ? n : k
-end
-\end{crystal}
+  }
+  if n > 1 {
+    return n
+  } else {
+    return k
+  }
+}
+\end{go}
 
 This solution is about 10 times faster than the naive imperative solution.
-Even more interesting, this optimized imperative solution is on par with the recursive solution in Haskell ($\approx 2 \mu s$).
+Even more interesting, the solution in Haskell based on lazy lists is on par with this optimized solution ($\approx 2 \mu s$).
 
 \section{Testing}
 

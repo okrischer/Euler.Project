@@ -45,20 +45,22 @@ fibFun limit = sum $ takeWhile (<= limit) $ filter even $ fibs 1 2
 
 \section{Imperative Implementation}
 
-While the recursive implementation was based on working with lists in Haskell, the following implementation gives an imperative solution in Crystal:
+While the recursive and functional implementations were based on working with lists in Haskell, the following implementation gives an imperative solution in Go:
 
-\begin{crystal}
-def fib_imp(limit : Int32) : Int32
-  a = 1
-  b = 1
-  sum = 0
-  while b <= limit
-    sum += b if b.even?
-    a, b = b, a + b
-  end
-  sum
-end
-\end{crystal}
+\begin{go}
+func fibImp(limit int) int {
+  a := 1
+  b := 1
+  s := 0
+  for b <= limit {
+    if b%2 == 0 {
+      s += b
+    }
+    a, b = b, a+b
+  }
+  return s
+}
+\end{go}
 
 \section{Further Improving}
 
@@ -69,23 +71,23 @@ Looking at the Fibonacci sequence
 \end{equation*}
 
 we can easily see that every third Fibonacci number is even.
-Thus, we can get rid of the test for \mintinline{crystal}{even?} like this:
+Thus, we can get rid of the test for \mintinline{go}{b%2 == 0} like this:
 
-\begin{crystal}
-def fib_opt(limit : Int32) : Int32
-  a = 1
-  b = 1
-  c = 2
-  sum = 0
-  while c <= limit
-    sum += c
+\begin{go}
+func fibOpt(limit int) int {
+  a := 1
+  b := 1
+  c := 2
+  s := 0
+  for c <= limit {
+    s += c
     a = b + c
     b = a + c
     c = a + b
-  end
-  sum
-end
-\end{crystal}
+  }
+  return s
+}
+\end{go}
 
 \section{Testing}
 
@@ -110,18 +112,15 @@ main = defaultMain [
 
 From this benchmark we see that \mintinline{haskell}{fibFun} is about twice as fast as \mintinline{haskell}{fibMem}.
 
-A benchmark for crystal can be generated like so:
+A benchmark for Go can be generated inside a testfile like so:
 
-\begin{crystal}
-Benchmark.ips do |bm|
-  bm.report("fib_imp") do
-    fib_imp(4_000_000)
-  end
-  bm.report("fib_opt") do
-    fib_opt(4_000_000)
-  end
-end
-\end{crystal}
+\begin{go}
+func BenchmarkProblem002FibImp(b *testing.B) {
+  for i := 0; i < b.N; i++ {
+  fibImp(4000000)
+  }
+}
+\end{go}
 
-From that, we see that \mintinline{crystal}{fib_opt} is about three times faster than \mintinline{crystal}{fib_imp}.
+From that, we see that \mintinline{go}{fibOpt} is about three times faster than \mintinline{go}{fibImp}.
 
