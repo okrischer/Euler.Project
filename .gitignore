@@ -9,11 +9,9 @@ _minted-Main/
 *.fls
 *.gz
 *.hi
-*.html
 *.log
 *.o
 *.out
-*.pdf
 *.swp
 *.toc
 *.xml

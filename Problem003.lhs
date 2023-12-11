@@ -12,8 +12,10 @@ import Test.QuickCheck.Text (paragraphs)
 
 \section{Checking for Prime Numbers}
 
-With this approach, we generate an infininte but lazy evaluated list of prime numbers, from which we take the potential prime factors.
-The prime numbers are evaluated (if they divide the given number) until their square exceeds the number.
+With this approach, we generate an infininte but lazy evaluated list of
+prime numbers, from which we take the potential prime factors.
+The prime numbers are evaluated (if they divide the given number) until
+their square exceeds the number.
 
 \begin{code}
 checkPrimes :: Integer -> Integer
@@ -37,11 +39,14 @@ sieve (x:xs) = x:sieve [y | y <- xs, rem y x /= 0]
 The key to this solution is a simple idea:
 \emph{instead of just checking if a number divides $n$ we actually divide $n$ by this number}.
 
-Repeatedly dividing $n$ by its factors decreases n very fast, making early termination of the algorithm possible.
+Repeatedly dividing $n$ by its factors decreases n very fast, making early
+termination of the algorithm possible.
 
 The algorithm works as follows:\
-for each integer number $k \geq 2$, if $k$ is a factor of $n$, divide $n$ by $k$ and completely divide out each $k$ before moving to the next $k$.
-When the next $k$ is a factor it will necessarily be prime, as all smaller factors have already been removed.
+for each integer number $k \geq 2$, if $k$ is a factor of $n$, divide $n$ by $k$
+and completely divide out each $k$ before moving to the next $k$.
+When the next $k$ is a factor it will necessarily be prime, as all smaller factors
+have already been removed.
 After dividing out all prime factors $n$ will equal to 1.
 
 \begin{code}
@@ -61,7 +66,8 @@ largest (n,l,k) | n > 1 && k^2 <= n = largest (num, last, fact+2)
                 where (num, last, fact) = factorize (n,l,k)
 \end{code}
 
-The problem with this imperative solution in Haskell is that it is much slower than the solution based on lazy lists (about seven times slower).
+The problem with this imperative solution in Haskell is that it is much
+slower than the solution based on lazy lists (about seven times slower).
 So, we'll give it a try with Go:
 
 \begin{go}
@@ -79,11 +85,14 @@ func factorNaive(n int) int {
 }
 \end{go}
 
-That works quite well ($\approx 10 \mu s$ per call), but there's still room for improvement:
+That works quite well ($\approx 10 \mu s$ per call), but there's still room
+for improvement:
 \begin{enumerate}
 \item we don't need to create an array of factors, we just need the biggest one
 \item we factor out all 2s at first and then increase k by 2, starting with k=3
-\item the upper bound for k is $\sqrt{n}$, as there could be only one prime factor greater then $\sqrt{n}$; if n is greater than 1 after dividing out all factors, then n is the greatest factor. 
+\item the upper bound for k is $\sqrt{n}$, as there could be only one prime
+  factor greater then $\sqrt{n}$; if n is greater than 1 after dividing out
+  all factors, then n is the greatest factor. 
 \end{enumerate}
 
 \begin{go}
@@ -107,7 +116,8 @@ func factorOpt(n int) int {
 \end{go}
 
 This solution is about 10 times faster than the naive imperative solution.
-Even more interesting, the solution in Haskell based on lazy lists is on par with this optimized solution ($\approx 2 \mu s$).
+Even more interesting, the solution in Haskell based on lazy lists is on par
+with this optimized solution ($\approx 2 \mu s$).
 
 \section{Testing}
 

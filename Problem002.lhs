@@ -35,7 +35,8 @@ fibMem limit = sum $ filter even $ run limit [1,1]
 
 \section{Functional approach}
 
-Using lazy list evaluation and higher order functions we can implement a more idiomatic Haskell solution:
+Using lazy list evaluation and higher order functions we can implement a more
+idiomatic Haskell solution:
 
 \begin{code}
 fibFun :: Integer -> Integer
@@ -45,7 +46,8 @@ fibFun limit = sum $ takeWhile (<= limit) $ filter even $ fibs 1 2
 
 \section{Imperative Implementation}
 
-While the recursive and functional implementations were based on working with lists in Haskell, the following implementation gives an imperative solution in Go:
+While the recursive and functional implementations were based on working
+with lists in Haskell, the following implementation gives an imperative solution in Go:
 
 \begin{go}
 func fibImp(limit int) int {
@@ -110,7 +112,8 @@ main = defaultMain [
   ]
 \end{spec}
 
-From this benchmark we see that \mintinline{haskell}{fibFun} is about twice as fast as \mintinline{haskell}{fibMem}.
+From this benchmark we see that \mintinline{haskell}{fibFun} is about twice as
+fast as \mintinline{haskell}{fibMem}.
 
 A benchmark for Go can be generated inside a testfile like so:
 
@@ -122,5 +125,5 @@ func BenchmarkProblem002FibImp(b *testing.B) {
 }
 \end{go}
 
-From that, we see that \mintinline{go}{fibOpt} is about three times faster than \mintinline{go}{fibImp}.
-
+From that, we see that \mintinline{go}{fibOpt} is about three times faster
+than \mintinline{go}{fibImp}.
