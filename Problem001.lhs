@@ -7,8 +7,7 @@ we get 3, 5, 6 and 9. The sum of these multiples is 23.
 
 \begin{code}
 import Criterion.Main
-import Test.QuickCheck ( (==>), quickCheck, Property )
-import GHC.StgToCmm.ExtCode (code)
+import Test.QuickCheck ( (==>), quickCheck, Property)
 \end{code}
 
 \section{Naive solution based on list comprehension}
@@ -89,5 +88,5 @@ main = defaultMain [
 \end{spec}
 
 If you want to get a feeling about the difference between a runtime complexity
-of $\Theta(1)$ and $\Theta(n)$, hava a look at the benchmark results for problem001
-in the \texttt{bench} folder of the root directory.
+of $\Theta(1)$ and $\Theta(n)$, run the benchmarks from the alternative main function
+from this module.

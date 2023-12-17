@@ -1,5 +1,6 @@
 _minted-Main/
 .vscode/
+bench/
 *.aux
 *.bbl
 *.bcf
@@ -12,6 +13,7 @@ _minted-Main/
 *.log
 *.o
 *.out
+*.pdf
 *.swp
 *.toc
 *.xml
