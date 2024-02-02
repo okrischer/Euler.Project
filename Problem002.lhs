@@ -44,25 +44,29 @@ fibFun limit = sum $ takeWhile (<= limit) $ filter even $ fibs 1 2
     where fibs a b = a : fibs b (a + b)
 \end{code}
 
+From the benchmark we can see that \mintinline{haskell}{fibFun} is about twice as
+fast as \mintinline{haskell}{fibMem}, both of them having linear runtime.
+
 \section{Imperative Implementation}
 
 While the recursive and functional implementations were based on working
-with lists in Haskell, the following implementation gives an imperative solution in Go:
+with lists in Haskell, the following implementation gives an imperative solution in Julia:
 
-\begin{go}
-func fibImp(limit int) int {
-  a := 1
-  b := 1
-  s := 0
-  for b <= limit {
-    if b%2 == 0 {
-      s += b
-    }
+\begin{jl}
+function fibIter(limit)
+  a = 0
+  b = 1
+  acc = 0
+  while (a + b) <= limit
+    next = a + b
+    if iseven(next)
+      acc += next
+    end
     a, b = b, a+b
-  }
-  return s
-}
-\end{go}
+  end
+  acc
+end
+\end{jl}
 
 \section{Further Improving}
 
@@ -73,29 +77,33 @@ Looking at the Fibonacci sequence
 \end{equation*}
 
 we can easily see that every third Fibonacci number is even.
-Thus, we can get rid of the test for \mintinline{go}{b%2 == 0} like this:
+Thus, we can get rid of the test for \mintinline{jl}{iseven()} like this:
 
-\begin{go}
-func fibOpt(limit int) int {
-  a := 1
-  b := 1
-  c := 2
-  s := 0
-  for c <= limit {
-    s += c
+\begin{jl}
+function fibOpt(limit)
+  a = 1
+  b = 1
+  c = 2
+  acc = 0
+  while c <= limit
+    acc += c
     a = b + c
     b = a + c
     c = a + b
-  }
-  return s
-}
-\end{go}
+  end
+  acc
+end
+\end{jl}
+
+From the benchmark we can see that \mintinline{jl}{fibOpt} is about three times
+faster than \mintinline{jl}{fibIter}, both of them having linear runtime.
+
 
 \section{Testing}
 
 \begin{code}
 equalsMemFun :: Integer -> Property
-equalsMemFun n = n > 0 ==> fibMem n == fibFun n
+equalsMemFun n = n > 10 ==> fibMem n == fibFun n
 
 main = do
   quickCheck equalsMemFun
@@ -112,18 +120,4 @@ main = defaultMain [
   ]
 \end{spec}
 
-From this benchmark we see that \mintinline{haskell}{fibFun} is about twice as
-fast as \mintinline{haskell}{fibMem}.
 
-A benchmark for Go can be generated inside a testfile like so:
-
-\begin{go}
-func BenchmarkProblem002FibImp(b *testing.B) {
-  for i := 0; i < b.N; i++ {
-  fibImp(4000000)
-  }
-}
-\end{go}
-
-From that, we see that \mintinline{go}{fibOpt} is about three times faster
-than \mintinline{go}{fibImp}.

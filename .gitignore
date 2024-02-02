@@ -1,6 +1,7 @@
 _minted-Main/
 .vscode/
 bench/
+julia/.ipynb_checkpoints/
 *.aux
 *.bbl
 *.bcf

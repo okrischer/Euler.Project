@@ -18,19 +18,19 @@ The prime numbers are evaluated (if they divide the given number) until
 their square exceeds the number.
 
 \begin{code}
-checkPrimes :: Integer -> Integer
+checkPrimes :: Int -> Int
 checkPrimes n = maximum (getPF n primes)
 
-getPF :: Integer -> [Integer] -> [Integer]
+getPF :: Int -> [Int] -> [Int]
 getPF n primes@(p:ps)
     | p*p > n = [n]
     | rem n p == 0 = p:getPF (n `div` p) primes
     | otherwise = getPF n ps
 
-primes :: [Integer]
+primes :: [Int]
 primes = sieve [2..]
 
-sieve :: [Integer] -> [Integer]
+sieve :: [Int] -> [Int]
 sieve (x:xs) = x:sieve [y | y <- xs, rem y x /= 0]
 \end{code}
 
@@ -50,91 +50,53 @@ have already been removed.
 After dividing out all prime factors $n$ will equal to 1.
 
 \begin{code}
-factorOut :: Integer -> Integer
-factorOut number
-    | num == 1  = last
-    | otherwise = num
-    where
-        (n,l,k) = factorize (number, 1, 2)
-        (num, last, fact) = largest (n,l,3)
-
-factorize (n,l,k) | rem n k == 0 = factorize (n `div` k, k, k)
-                  | otherwise = (n,l,k)
-
-largest (n,l,k) | n > 1 && k^2 <= n = largest (num, last, fact+2)
-                | otherwise = (n,l,k)
-                where (num, last, fact) = factorize (n,l,k)
+factor :: Int -> Int
+factor n = divide n 2
+  where
+    divide m k
+      | m == 1 = k
+      | k * k > m = m
+      | m `rem` k == 0 = divide (m `div` k) k
+      | otherwise = divide m (k+1)
 \end{code}
 
-The problem with this imperative solution in Haskell is that it is much
-slower than the solution based on lazy lists (about seven times slower).
-So, we'll give it a try with Go:
+Let's compare this solution with an equivalent implementation in Julia:
 
-\begin{go}
-func factorNaive(n int) int {
-  factors := []int{}
-  k := 2
-  for k <= n {
-    for n%k == 0 {
-      factors = append(factors, k)
-      n /= k
-    }
+\begin{jl}
+function largestPF(n)
+  k = 2
+  while k * k <= n
+    while n % k == 0
+      n ÷= k
+    end
+    n == 1 && return k
     k += 1
-  }
-  return slices.Max(factors)
-}
-\end{go}
+  end
+  n
+end
+\end{jl}
 
-That works quite well ($\approx 10 \mu s$ per call), but there's still room
-for improvement:
-\begin{enumerate}
-\item we don't need to create an array of factors, we just need the biggest one
-\item we factor out all 2s at first and then increase k by 2, starting with k=3
-\item the upper bound for k is $\sqrt{n}$, as there could be only one prime
-  factor greater then $\sqrt{n}$; if n is greater than 1 after dividing out
-  all factors, then n is the greatest factor. 
-\end{enumerate}
-
-\begin{go}
-func factorOpt(n int) int {
-  k := 3
-  for n%2 == 0 {
-    n /= 2
-  }
-  for k*k <= n && n > 1 {
-    for n%k == 0 {
-      n /= k
-    }
-    k += 2
-  }
-  if n > 1 {
-    return n
-  } else {
-    return k
-  }
-}
-\end{go}
-
-This solution is about 10 times faster than the naive imperative solution.
-Even more interesting, the solution in Haskell based on lazy lists is on par
-with this optimized solution ($\approx 2 \mu s$).
+Interstingly, the benchmarks for the Haskell and the Julia function report exactly the same
+running time ($2.2 \mu s$).
+That shows at least that a recursive loop in Haskell doesn't need to be slower then an
+imperative loop in Julia.
 
 \section{Testing}
 
 \begin{code}
-factorOutDevidesN :: Integer -> Property
-factorOutDevidesN n = n > 1 ==> rem n (factorOut n) == 0
+factorDevidesN :: Int -> Property
+factorDevidesN n = n > 1 ==> rem n (factor n) == 0
 
-checkPrimesDevidesN :: Integer -> Property
+checkPrimesDevidesN :: Int -> Property
 checkPrimesDevidesN n = n > 1 ==> rem n (checkPrimes n) == 0
 
-equalResults :: Integer -> Property
-equalResults n = n > 1 ==> checkPrimes n == factorOut n
+equalResults :: Int -> Property
+equalResults n = n > 1 ==> checkPrimes n == factor n
 \end{code}
 
 \begin{code}
 main = do
-    quickCheck factorOutDevidesN
+    quickCheck factorDevidesN
     quickCheck checkPrimesDevidesN
     quickCheck equalResults
 \end{code}
@@ -142,7 +104,7 @@ main = do
 \begin{spec}
 -- alternative main for benchmarking
 main = defaultMain [
-  bgroup "lpf" [ bench "factor" $ whnf factorOut   600851475143
+  bgroup "lpf" [ bench "factor" $ whnf factor   600851475143
                , bench "check"  $ whnf checkPrimes 600851475143
                ]
   ]
