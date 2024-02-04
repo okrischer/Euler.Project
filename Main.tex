@@ -3,7 +3,11 @@
 \usepackage{mathtools}
 \numberwithin{equation}{chapter}
 \usepackage{hyperref}
-\hypersetup{hidelinks}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=gray,
+  urlcolor=purple
+}
 \usepackage[chapter,newfloat=true]{minted}
 \usemintedstyle[haskell]{lovelace}
 \newminted[code]{haskell}{bgcolor=bgh}
@@ -40,5 +44,6 @@
 \input{Problem003.lhs}
 \input{Problem004.lhs}
 \input{Problem005.lhs}
+\input{Problem006.lhs}
 
 \end{document}

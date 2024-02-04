@@ -6,7 +6,6 @@ without any remainder.
 numbers from 1 to 20?}
 
 \begin{code}
-import Criterion.Main
 import Test.QuickCheck ( (==>), quickCheck, Property )
 \end{code}
 
@@ -17,7 +16,7 @@ $[2, 20]$.
 While there is a closed formula to compute the \emph{lcm} of two numbers
 \begin{equation*}
 lcm(a, b) = \frac{ab}{gcd(a, b)}
-\end{equation}
+\end{equation*}
 where \emph{gcd(a,b)} is the greatest common divisor of a and b, this formula is not suitable for
 the given problem, as we'd have to do this calculation for every pair of numbers in the given range.
 

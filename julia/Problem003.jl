@@ -1,3 +1,5 @@
+using BenchmarkTools
+
 function largestPF(n)
   k = 2
   while k * k <= n
@@ -9,3 +11,6 @@ function largestPF(n)
   end
   n
 end
+
+largestPF(13195)
+@benchmark largestPF(600851475143)

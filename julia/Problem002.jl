@@ -1,3 +1,5 @@
+using BenchmarkTools
+
 function fibIter(limit)
   a = 0
   b = 1
@@ -25,3 +27,9 @@ function fibOpt(limit)
   end
   acc
 end
+
+
+fibIter(1000)
+@btime fibIter(4000000)
+fibOpt(1000)
+@btime fibOpt(4000000)
