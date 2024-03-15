@@ -39,51 +39,14 @@ algorithm does.
 But it does not; it's merely a generating function with a running time of $\mathcal{O}(n^2)$,
 instead of the promised running time of $\mathcal{O} (n (\lg n))$ of the original sieve.
 
-It's actually quite hard to implement that algorithm in a purely functional language like Haskell,
-and we we'll see soon why.
-So let's implement the original algorithm in julia:
+\section{Prime number theorem}
 
-\begin{jl}
-function sieve(n)
-  isprime = trues(n+1)
-  primes = Vector{Int64}()
-  for i in 2:n
-    if isprime[i]
-      push!(primes, i)
-      for j in i:n÷i
-        isprime[i*j] = false
-      end
-    end
-  end
-  primes
-end
-\end{jl}
+The \emph{prime number theorem} states that the prime counting function $\pi(n)$ (the
+number of primes not greater than n) is asymptotic to $n / \log n$, which can be
+denoted as
+$$\pi(n) \sim \frac{n}{\log n}.$$
+Setting $\pi(n) = 10,000$ leads to $n \sim 10,000 \log n$.
 
-The idea of that algorithm is to create an array (or vector) of boolean values up to a given limit,
-all initially set to true.
-Then we iterate over all natural numbers from 2 to the limit, and if the number is a
-prime number (initially all numbers are marked as prime), we append the number to a
-second (initially empty) array of prime numbers.
-
-So, the first number to be added is 2.
-Then, if the number is prime, we mark all multiples of it as not prime.
-In the result, only real prime numbers are added to the primes array, as all others have
-already been sieved out.
-
-Now we can see why this is not possible in a purely functional language:\\
-first, we need a data structure with constant time access to arbitrary elements.
-Second, we need to do a lot of in-place updates in that structure for marking numbers as
-not prime.
-Both is not possible in a language based on linked data strucures without mutable values.
-
-The final result from the sieving algorithm can be retrieved like so:
-
-\begin{jl}
-sieved = sieve(105000)
-sieved[10001]
-\end{jl}
-
-On my machine running the algorithm takes about $400 \mu s$, which is much faster than the
-$\mathcal{O}(n^2)$ version in Haskell.
-
-
+Since $\log 110,000 \approx 11$, we can assume that $n \approx 10,000 * 11 \approx 110,000$,
+and the above similarity still holds:
+$$10,000 \approx \frac{110,000}{\log{110,000}}.$$

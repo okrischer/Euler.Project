@@ -47,58 +47,6 @@ fibFun limit = sum $ takeWhile (<= limit) $ filter even $ fibs 1 2
 From the benchmark we can see that \mintinline{haskell}{fibFun} is about twice as
 fast as \mintinline{haskell}{fibMem}, both of them having linear runtime.
 
-\section{Imperative Implementation}
-
-While the recursive and functional implementations were based on working
-with lists in Haskell, the following implementation gives an imperative solution in Julia:
-
-\begin{jl}
-function fibIter(limit)
-  a = 0
-  b = 1
-  acc = 0
-  while (a + b) <= limit
-    next = a + b
-    if iseven(next)
-      acc += next
-    end
-    a, b = b, a+b
-  end
-  acc
-end
-\end{jl}
-
-\section{Further Improving}
-
-Looking at the Fibonacci sequence
-
-\begin{equation*}
-1, 1, \textbf{2}, 3, 5, \textbf{8}, 13, 21, \textbf{34}, 55, 89, \textbf{144}, \ldots
-\end{equation*}
-
-we can easily see that every third Fibonacci number is even.
-Thus, we can get rid of the test for \mintinline{jl}{iseven()} like this:
-
-\begin{jl}
-function fibOpt(limit)
-  a = 1
-  b = 1
-  c = 2
-  acc = 0
-  while c <= limit
-    acc += c
-    a = b + c
-    b = a + c
-    c = a + b
-  end
-  acc
-end
-\end{jl}
-
-From the benchmark we can see that \mintinline{jl}{fibOpt} is about three times
-faster than \mintinline{jl}{fibIter}, both of them having linear runtime.
-
-
 \section{Testing}
 
 \begin{code}

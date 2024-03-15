@@ -60,27 +60,6 @@ factor n = divide n 2
       | otherwise = divide m (k+1)
 \end{code}
 
-Let's compare this solution with an equivalent implementation in Julia:
-
-\begin{jl}
-function largestPF(n)
-  k = 2
-  while k * k <= n
-    while n % k == 0
-      n ÷= k
-    end
-    n == 1 && return k
-    k += 1
-  end
-  n
-end
-\end{jl}
-
-Interstingly, the benchmarks for the Haskell and the Julia function report exactly the same
-running time ($2.2 \mu s$).
-That shows at least that a recursive loop in Haskell doesn't need to be slower then an
-imperative loop in Julia.
-
 \section{Testing}
 
 \begin{code}
