@@ -29,24 +29,15 @@ solve :: Int -> Int
 solve n = head $ take 1 $ drop (n-1) primes
 \end{code}
 
-\section{Using a real sieve}
+\section{Imperative approach}
 
 When you're calling \mintinline{haskell}{solve} from the last section with an
 input value of $10001$, you will notice some delay in returning the result.
 This is because of the \mintinline{haskell}{sieve} function, which, according to its name,
 is supposed to do some kind of sieving like the famous \emph{Sieve of Eratosthenes}
 algorithm does.
-But it does not; it's merely a generating function with a running time of $\mathcal{O}(n^2)$,
-instead of the promised running time of $\mathcal{O} (n (\lg n))$ of the original sieve.
+But it does not; it's merely a generating function with a running time of $\Theta (n^2)$,
+instead of the promised running time of $\Theta (n (\lg n))$ of the original sieve.
 
-\section{Prime number theorem}
-
-The \emph{prime number theorem} states that the prime counting function $\pi(n)$ (the
-number of primes not greater than n) is asymptotic to $n / \log n$, which can be
-denoted as
-$$\pi(n) \sim \frac{n}{\log n}.$$
-Setting $\pi(n) = 10,000$ leads to $n \sim 10,000 \log n$.
-
-Since $\log 110,000 \approx 11$, we can assume that $n \approx 10,000 * 11 \approx 110,000$,
-and the above similarity still holds:
-$$10,000 \approx \frac{110,000}{\log{110,000}}.$$
+So we'll use an imperative approach by just counting all the prime numbers within the set of the
+natural numbers $\mathbb{N}$ up to the given limit.

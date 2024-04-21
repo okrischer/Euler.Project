@@ -1,0 +1,19 @@
+project:
+  type: website
+
+website:
+  title: "Project Euler"
+  navbar:
+    left:
+      - problem001.qmd
+
+format:
+  html:
+    theme: cosmo
+    css: styles.css
+    toc: true
+
+execute:
+  cache: true
+  freeze: auto
+

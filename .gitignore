@@ -2,6 +2,9 @@ _minted-Main/
 .vscode/
 bench/
 julia/.ipynb_checkpoints/
+_freeze/
+_site/
+.jupyter_cache/
 *.aux
 *.bbl
 *.bcf

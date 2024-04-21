@@ -1,0 +1,122 @@
+---
+title: "Problem 1"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+If we list all the natural numbers below 10 that are multiples of 3 or 5,
+we get 3, 5, 6 and 9. The sum of these multiples is 23.
+
+**Find the sum of all the multiples of 3 or 5 below 1000.**
+
+## Naive Solution
+
+A first solution might be to iterate over all natural numbers up to the limit
+and check wether the number is divisible by 3 or 5.
+If so, just add it to a running sum.
+
+``` {julia}
+#| output: false
+function iterative(n)
+  sum = 0
+  for i in 3:n-1
+    if i % 3 == 0 || i % 5 == 0
+      sum += i
+    end
+  end
+  sum
+end
+```
+
+``` {julia}
+@assert iterative(10) == 23 "iterative fails for input 10"
+```
+
+If we don't see any output from assertions, everything is okay.
+
+A more functional approach would be to use the *higher-order* function `sum`:
+
+``` {julia}
+#| output: false
+function higherOrder(n)
+  sum(x -> x % 3 == 0 || x % 5 == 0 ? x : 0, 3:n-1)
+end
+```
+
+``` {julia}
+@assert higherOrder(10) == 23 "higherOrder fails for input 10"
+```
+
+This is not only way more comprehensive than the iterative solution, but also
+more efficient:
+
+``` {julia}
+  using BenchmarkTools
+  check = "🏁"
+  @btime iterative(1000)
+  @btime higherOrder(1000)
+  check
+```
+
+## Efficient Solution
+
+The starting point for developing an efficient solution is the following idea:
+instead of checking if the target value is divisible by 3 or 5, we can check
+separately for division of 3 and 5 and then add the results.
+But then we have to subtract the sum of numbers divisible by 15 $(= 3 * 5)$,
+as we have added them twice in the first step.
+
+If we would apply our naive implementation for 3 and 5 we'd get:
+
+$$
+\begin{align*}
+3 + 6 + 9 + \cdots + 999 &= 3*(1 + 2 + 3 +\cdots + 333) \\
+5 + 10 + 15 + \cdots + 995 &= 5*(1 + 2 + 3 + \cdots + 199)
+\end{align*}
+$$
+
+Thus, we can apply the equation for *Triangular Numbers*
+
+$$
+\begin{equation*}
+T_n = \sum_{k=1}^n k = 1+2+3+\cdots+n = \frac{n(n+1)}{2} 
+\end{equation*}
+$$
+
+as an inner function to our solution:
+
+``` {julia}
+#| output: false
+function efficient(n)
+  function triangular(factor)
+    m = div(n-1, factor)
+    div(factor*m*(m+1), 2)
+  end
+  triangular(3) + triangular(5) - triangular(15)
+end
+```
+
+Now, let's check if everything works as expected:
+
+``` {julia}
+@assert efficient(10) == 23 "solve fails for input 10"
+@assert efficient(1000) == higherOrder(1000) "solutions yield different results"
+```
+
+
+Since the inner function `triangular` represents a closed formula,
+the runtime complexity of this algorithm is constant, thus $\Theta(1)$.
+
+``` {julia}
+@benchmark efficient(1000)
+```
+
+Let's compare the running time to that of the linear `higherOrder` function
+($\Theta(n)$):
+
+``` {julia}
+@benchmark higherOrder(1000)
+```
+Even for a relatively small input value of 1,000 the `efficient` solution is about
+600 times faster!
