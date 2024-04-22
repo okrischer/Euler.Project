@@ -17,6 +17,7 @@ _site/
 *.log
 *.o
 *.out
+*.svg
 *.pdf
 *.swp
 *.toc

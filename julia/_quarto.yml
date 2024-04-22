@@ -2,18 +2,19 @@ project:
   type: website
 
 website:
-  title: "Project Euler"
-  navbar:
-    left:
-      - problem001.qmd
+  title: "99 Euler Problems"
+  sidebar:
+    style: docked
+    search: true
+    contents: auto
 
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
+    code-tools: true
 
 execute:
   cache: true
   freeze: auto
-

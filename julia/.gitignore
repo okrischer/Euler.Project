@@ -1,1 +1,5 @@
 /.quarto/
+/.jupyter_cache/
+/_freeze/
+/_site/
+*.svg

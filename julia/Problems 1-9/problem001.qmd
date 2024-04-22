@@ -1,0 +1,209 @@
+---
+title: "Problem 1"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+If we list all the natural numbers below 10 that are multiples of 3 or 5,
+we get 3, 5, 6 and 9. The sum of these multiples is 23.
+
+**Find the sum of all the multiples of 3 or 5 below 1000.**
+
+## Naive Solution
+
+A first solution might be to iterate over all natural numbers up to the limit
+and check wether the number is divisible by 3 or 5.
+If so, just add it to a running sum.
+
+``` {julia}
+#| output: false
+function iterative(n)
+  sum = 0
+  for i in 3:n-1
+    if i % 3 == 0 || i % 5 == 0
+      sum += i
+    end
+  end
+  sum
+end
+```
+
+``` {julia}
+@assert iterative(10) == 23
+```
+
+If we don't see any output from assertions, everything is okay.
+
+A more functional approach would be to use the *higher-order* function `sum`:
+
+``` {julia}
+#| output: false
+function higherOrder(n)
+  sum(x -> x % 3 == 0 || x % 5 == 0 ? x : 0, 3:n-1)
+end
+```
+
+``` {julia}
+@assert higherOrder(10) == 23
+```
+
+This is not only way more comprehensive than the iterative solution, but also
+more efficient:
+
+``` {julia}
+  using BenchmarkTools
+  check = "🏁"
+  @btime iterative(1000)
+  @btime higherOrder(1000)
+  check
+```
+
+The `higherOrder` function is roughly twice as fast as the `iterative` function.
+
+## Efficient Solution
+
+The starting point for developing an efficient solution is the following idea:
+instead of checking if the target value is divisible by 3 or 5, we can check
+separately for division of 3 and 5 and then add the results.
+But then we have to subtract the sum of numbers divisible by 15 $(= 3 * 5)$,
+as we have added them twice in the first step.
+
+If we would apply our naive implementation for 3 and 5 we'd get:
+
+$$
+\begin{align*}
+3 + 6 + 9 + \cdots + 999 &= 3*(1 + 2 + 3 +\cdots + 333) \\
+5 + 10 + 15 + \cdots + 995 &= 5*(1 + 2 + 3 + \cdots + 199)
+\end{align*}
+$$
+
+Thus, we can apply the equation for *Triangular Numbers*
+
+$$
+T_n = \sum_{k=1}^n k = 1+2+3+\cdots+n = \frac{n(n+1)}{2}
+$$ {#eq-triangular}
+
+as an inner function to our solution:
+
+``` {julia}
+#| output: false
+function efficient(n)
+  function triangular(factor)
+    m = div(n-1, factor)
+    div(factor*m*(m+1), 2)
+  end
+  triangular(3) + triangular(5) - triangular(15)
+end
+```
+
+Now, let's check if everything works as expected:
+
+``` {julia}
+@assert efficient(10) == 23
+@assert efficient(1000) == higherOrder(1000)
+```
+
+Since the inner function `triangular` represents a closed formula,
+the runtime complexity of this algorithm is constant, thus $\Theta(1)$.
+Let's compare the running time to that of the linear `higherOrder` function
+($\Theta(n)$):
+
+``` {julia}
+@btime efficient(1000)
+@btime higherOrder(1000)
+check
+```
+
+
+Even for a relatively small input value of 1,000 the `efficient` solution is about
+600 times faster!
+
+## Triangular Numbers
+
+We have used the formula for
+[Triangular Numbers](https://en.wikipedia.org/wiki/Triangular_number)
+to efficiently solve this problem (@eq-triangular).
+But why is it called like that?
+
+A triangular number counts objects arranged in an equilateral triangle.
+Triangular numbers are a type of figurate number, other examples being square numbers
+and cube numbers.\
+The *n*th triangular number is the number of objects in the triangular arrangement
+with *n* objects on each side, and is equal to the sum of the *n* natural numbers
+from 1 to *n*.
+
+We can create a visual representation for $n = 10$ like so:
+
+``` {julia}
+#| code-fold: true
+#| label: fig-triangle
+#| fig-cap: "Triangular number 10"
+#| fig-cap-location: margin
+#| fig-align: center
+using Luxor
+
+function row(n)
+  points = Array{Point}(undef, n)
+  for p in 1:n
+    points[p] = Point(p*25, 0)
+  end
+  circle.(points, 10, action = :fill)
+end
+
+function triangle(n)
+  n == 0 && return
+  row(n)
+  translate(0, 25)
+  triangle(n-1)
+end
+
+Drawing(260, 250, "triangle.svg")
+translate(0, 10)
+setcolor("red")
+triangle(10)
+finish()
+preview()
+```
+
+### Visual proof
+
+We need to count the elements of a triangular number to conduct this proof.
+Unfortunately it's not easy to count the elements of a triangle.
+But it would be easy to count the elements of a rectangle, as there is a simple formula
+to do so: $n_{elems} = n_{rows} \times n_{cols}$.
+
+So, the trick is to duplicate the triangle, rotate it by 180 degrees and paste it to
+the original one, resulting in a rectangle:
+
+``` {julia}
+#| code-fold: true
+#| label: fig-rectangle
+#| fig-cap: "Rectangular number"
+#| fig-cap-location: margin
+#| fig-align: center
+Drawing(285, 250, "rectangle.svg")
+translate(0, 10)
+setcolor("red")
+triangle(10)
+setcolor("green")
+rotate(π)
+translate(-300, 25)
+triangle(10)
+finish()
+preview()
+```
+
+Observe that the number of rows of this rectangle is the same as that from the triangle,
+but the number of columns has increased by one.
+Therefore, the number of elements in this rectangle is $n \times (n + 1)$, and as we
+have duplicated the original triangle, we only need the half of it:
+
+$$
+T_n = \sum_{k=1}^n k = \frac{n(n+1)}{2} \quad \square
+$$
+
+### Proof by induction
+
+### Proof with sequences
+

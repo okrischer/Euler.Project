@@ -1,7 +1,16 @@
 ---
-title: "Project Euler"
+title: "99 Euler Problems"
+format:
+  html:
+    code-tools: false
 ---
 
-This is a Quarto website.
+This website contains my solutions in `Julia` to the first 99 problems of
+[Project Euler](https://projecteuler.net/), including some annotations and explanations.
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+Please notice that, according to the policy of *Project Euler*, there will be no
+solutions to problems with $n >= 100$.
+
+Also notice that none of my solutions actually contains the searched value in order
+to prevent you from cheating yourself.
+
