@@ -5,18 +5,15 @@ jupyter: julia-1.10
 
 ## Problem Statement
 
-If we list all the natural numbers below 10 that are multiples of 3 or 5,
-we get 3, 5, 6 and 9. The sum of these multiples is 23.
+If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
 
 **Find the sum of all the multiples of 3 or 5 below 1000.**
 
 ## Naive Solution
 
-A first solution might be to iterate over all natural numbers up to the limit
-and check wether the number is divisible by 3 or 5.
-If so, just add it to a running sum.
+A first solution might be to iterate over all natural numbers up to the limit and check whether the number is divisible by 3 or 5. If so, just add it to a running sum.
 
-``` {julia}
+```{julia}
 #| output: false
 function iterative(n)
   sum = 0
@@ -29,7 +26,7 @@ function iterative(n)
 end
 ```
 
-``` {julia}
+```{julia}
 @assert iterative(10) == 23
 ```
 
@@ -37,21 +34,18 @@ If we don't see any output from assertions, everything is okay.
 
 A more functional approach would be to use the *higher-order* function `sum`:
 
-``` {julia}
+```{julia}
 #| output: false
-function higherOrder(n)
-  sum(x -> x % 3 == 0 || x % 5 == 0 ? x : 0, 3:n-1)
-end
+higherOrder(n) = sum(x -> x % 3 == 0 || x % 5 == 0 ? x : 0, 3:n-1)
 ```
 
-``` {julia}
+```{julia}
 @assert higherOrder(10) == 23
 ```
 
-This is not only way more comprehensive than the iterative solution, but also
-more efficient:
+This is not only way more comprehensive than the iterative solution, but also more efficient:
 
-``` {julia}
+```{julia}
   using BenchmarkTools
   check = "🏁"
   @btime iterative(1000)
@@ -63,19 +57,15 @@ The `higherOrder` function is roughly twice as fast as the `iterative` function.
 
 ## Efficient Solution
 
-The starting point for developing an efficient solution is the following idea:
-instead of checking if the target value is divisible by 3 or 5, we can check
-separately for division of 3 and 5 and then add the results.
-But then we have to subtract the sum of numbers divisible by 15 $(= 3 * 5)$,
-as we have added them twice in the first step.
+The starting point for developing an efficient solution is the following idea: instead of checking if the target value is divisible by 3 or 5, we can check separately for division of 3 and 5 and then add the results. But then we have to subtract the sum of numbers divisible by 15 $(= 3 * 5)$, as we have added them twice in the first step.
 
 If we would apply our naive implementation for 3 and 5 we'd get:
 
 $$
-\begin{align*}
+\begin{align}
 3 + 6 + 9 + \cdots + 999 &= 3*(1 + 2 + 3 +\cdots + 333) \\
 5 + 10 + 15 + \cdots + 995 &= 5*(1 + 2 + 3 + \cdots + 199)
-\end{align*}
+\end{align}
 $$
 
 Thus, we can apply the equation for *Triangular Numbers*
@@ -86,7 +76,7 @@ $$ {#eq-triangular}
 
 as an inner function to our solution:
 
-``` {julia}
+```{julia}
 #| output: false
 function efficient(n)
   function triangular(factor)
@@ -99,43 +89,31 @@ end
 
 Now, let's check if everything works as expected:
 
-``` {julia}
+```{julia}
 @assert efficient(10) == 23
 @assert efficient(1000) == higherOrder(1000)
 ```
 
-Since the inner function `triangular` represents a closed formula,
-the runtime complexity of this algorithm is constant, thus $\Theta(1)$.
-Let's compare the running time to that of the linear `higherOrder` function
-($\Theta(n)$):
+Since the inner function `triangular` represents a closed formula, the runtime complexity of this algorithm is constant, thus $\Theta(1)$. Let's compare the running time to that of the linear `higherOrder` function ($\Theta(n)$):
 
-``` {julia}
+```{julia}
 @btime efficient(1000)
 @btime higherOrder(1000)
 check
 ```
 
-
-Even for a relatively small input value of 1,000 the `efficient` solution is about
-600 times faster!
+Even for a relatively small input value of 1,000 the `efficient` solution is about 600 times faster!
 
 ## Triangular Numbers
 
-We have used the formula for
-[Triangular Numbers](https://en.wikipedia.org/wiki/Triangular_number)
-to efficiently solve this problem (@eq-triangular).
-But why is it called like that?
+We have used the formula for [Triangular Numbers](https://en.wikipedia.org/wiki/Triangular_number) to efficiently solve this problem (@eq-triangular). But why is it called like that?
 
-A triangular number counts objects arranged in an equilateral triangle.
-Triangular numbers are a type of figurate number, other examples being square numbers
-and cube numbers.\
-The *n*th triangular number is the number of objects in the triangular arrangement
-with *n* objects on each side, and is equal to the sum of the *n* natural numbers
-from 1 to *n*.
+A triangular number counts objects arranged in an equilateral triangle. Triangular numbers are a type of figurate number, other examples being square numbers and cube numbers.\
+The *n*th triangular number is the number of objects in the triangular arrangement with *n* objects on each side, and is equal to the sum of the *n* natural numbers from 1 to *n*.
 
 We can create a visual representation for $n = 10$ like so:
 
-``` {julia}
+```{julia}
 #| code-fold: true
 #| label: fig-triangle
 #| fig-cap: "Triangular number 10"
@@ -168,15 +146,11 @@ preview()
 
 ### Visual proof
 
-We need to count the elements of a triangular number to conduct this proof.
-Unfortunately it's not easy to count the elements of a triangle.
-But it would be easy to count the elements of a rectangle, as there is a simple formula
-to do so: $n_{elems} = n_{rows} \times n_{cols}$.
+We need to count the elements of a triangular number to conduct this proof. Unfortunately it's not easy to count the elements of a triangle. But it would be easy to count the elements of a rectangle, as there is a simple formula to do so: $n_{elems} = n_{rows} \times n_{cols}$.
 
-So, the trick is to duplicate the triangle, rotate it by 180 degrees and paste it to
-the original one, resulting in a rectangle:
+So, the trick is to duplicate the triangle, rotate it by 180 degrees and paste it to the original one, resulting in a rectangle:
 
-``` {julia}
+```{julia}
 #| code-fold: true
 #| label: fig-rectangle
 #| fig-cap: "Rectangular number"
@@ -194,10 +168,7 @@ finish()
 preview()
 ```
 
-Observe that the number of rows of this rectangle is the same as that from the triangle,
-but the number of columns has increased by one.
-Therefore, the number of elements in this rectangle is $n \times (n + 1)$, and as we
-have duplicated the original triangle, we only need the half of it:
+Observe that the number of rows of this rectangle is the same as that from the triangle, but the number of columns has increased by one. Therefore, the number of elements in this rectangle is $n \times (n + 1)$, and as we have duplicated the original triangle, we only need the half of it:
 
 $$
 T_n = \sum_{k=1}^n k = \frac{n(n+1)}{2} \quad \square
@@ -205,5 +176,59 @@ $$
 
 ### Proof by induction
 
-### Proof with sequences
+We'll give another proof for the triangular number formula by [mathematical induction](https://en.wikipedia.org/wiki/Mathematical_induction).
 
+This method is well suited for proving propositions about natural numbers. It consists usually of two cases:
+
+1.  **base case**: this proves the statement for an arbitrarily chosen number $n_0$, in most cases this will be the number 1 as the smallest natural number
+2.  **induction step**: this proves that *if* the statement holds for any given case $n=k$, *then* it must also hold for the next case $n = k + 1$.
+
+These two steps together establish that the statement holds for every natural number $n$.
+
+**Base case**:\
+we choose $n_0 = 1$ and get
+
+$$
+\frac{1(1+1)}{2} = 1,
+$$ which is obviously true.
+
+**Induction step**:\
+we formulate the *induction hypothesis* like so $$
+\sum_{k=1}^{n+1} k = \frac{(n+1)(n+2)}{2}.
+$$
+
+For the proof we'll expand and reshape the left-hand side (*lhs*) of the hypothesis and check whether this leads to the same result as the right-hand side (*rhs*) of this equation:
+
+$$
+\begin{align*}
+\sum_{k=1}^{n+1} k &= \sum_{k=1}^n k + n + 1\\
+&= \frac{n(n+1)}{2} + (n + 1)\\
+&= \frac{n(n+1)}{2} + \frac{2(n+1)}{2}\\
+&= \frac{n(n+1) + 2(n+1)}{2}\\
+&= \frac{(n+1)(n+2)}{2} = rhs \quad \square
+\end{align*}
+$$
+
+The last line of this proof follows from the *distributive law* of algebra:
+$ba + ca = a(b+c)$.
+
+### Proof with series
+
+The last proof we'll cover here was given by the German mathematician *Carl Friedrich Gauß*
+at the age of 9.
+He added all the natural numbers up to $n$ in a line, and in a second line he added them
+again, but in reverse order. Finally, he added both lines like so:
+
+$$
+\begin{align*}
+1 + 2 &+ \dots + (n-1) + n &= T_n\\
+n + (n-1) &+ \dots + 2 + 1 &= T_n\\
+(n+1) + (n+1) &+ \dots + (n+1) + (n+1) &= 2T_n
+\end{align*}
+$$
+
+How many times does $(n+1)$ appear in the last line?
+The first line shows that the answer is $n$. Hence $n(n+1) = 2T_n$, so
+$$
+T_n = \frac{n(n+1)}{2} \quad \square
+$$
