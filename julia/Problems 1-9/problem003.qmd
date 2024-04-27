@@ -1,0 +1,296 @@
+---
+title: "Problem 3"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+The prime factors of 13195 are 5, 7, 13 and 29.
+
+**What is the largest prime factor of the number 600851475143?**
+
+## Solution
+### Naive Solution
+
+A prime factor is a number which divides the given number and is itself prime.
+A number is prime if it is only divisible by 1 or itself.
+
+A naive way to compute these prime factors would be to iterate over all natural numbers
+from 2 up to the given number, and to check whether thosen numbers evenly divide the given
+number (without a remainder).
+If so, iterate again over all natural numbers from 2 up to the found factor in
+order to check whether the factor is a prime number.
+If any number divides the factor, the factor is not prime.
+
+Observe that we actually only need to test up to squareroot of $n$ for checking primes,
+as there cannot be a factor $k$ with $k > \sqrt{n}$ and $k^2 <= n$.
+
+
+```{julia}
+#| output: false
+
+function naive(n)
+  for f in 2:div(n, 2)
+    if n % f == 0 # f is a factor of n
+      prime = true
+      for k in 2:sqrt(f)
+        if f % k == 0 # f is not prime
+          prime = false
+          break
+        end
+      end
+      prime && println(f)
+    end
+  end
+end
+```
+
+```{julia}
+naive(13195)
+```
+
+While this algorithm works well for small $n$ it's not suitable for larger numbers,
+because of the two nested for-loops, which result in a running time of $\mathcal{O}(n^2)$.
+
+### Sieve of Eratosthenes
+
+What if we tried the other way round?
+Instead of running through all natural numbers we could just check whether any prime
+number divides $n$, and if so, this number is a prime factor.
+But for that we need a list of prime numbers at first.
+
+To that purpose we use the *Sieve of Eratosthenes*, which is an ancient algorithm for
+finding all prime numbers up to a given limit.\
+It does so by iteratively marking as composite (i.e., not prime) the multiples of each
+prime, starting with the first prime number.
+Once all the multiples of each discovered prime have been marked as composites, the
+remaining unmarked numbers are primes.
+
+![Sieve of Eratosthenes^[<a href="https://commons.wikimedia.org/wiki/File:Animation_Sieve_of_Eratosth.gif">SKopp</a>, <a href="http://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</a>]](https://upload.wikimedia.org/wikipedia/commons/9/94/Animation_Sieve_of_Eratosth.gif){align="center"}
+
+```{julia}
+function sieve(n::Int)
+  isPrime = trues(n+1)
+  primes = Vector{Int}()
+  for i in 2:n
+    if isPrime[i]
+      push!(primes, i)
+      for j in i:div(n, i)
+        isPrime[i*j] = false
+      end
+    end
+  end
+  primes
+end
+
+length(sieve(120))
+```
+
+We get 30 primes for $n=120$, which corresponds to the animation above.
+
+The running time of the `sieve` is much better than that of the `naive` solution:\
+The first for-loop has a running time of $\mathcal{O}(n)$.
+The running time of the second loop is proportional to
+$\sum_{i=2}^n \frac{n}{i} \leq \ln n$, leading to an overall running time of
+$\mathcal{O}(n \log n)$.
+Furthermore, since the inner loop is executed for prime numbers only, the
+running time is even less: it can be shown that the actual running time for the
+*sieve of Eratosthenes* is $\mathcal{O} (n \log \log n)$.
+Not bad for an ancient algorithm.
+
+Equipped with this insight, we can use the generated prime numbers for solving the
+problem more efficiently:
+
+```{julia}
+function efficient(n)
+  maxFactor = 1
+  for i in sieve(10000)
+    if n%i == 0
+      maxFactor = i > maxFactor ? i : maxFactor
+    end
+  end
+  maxFactor
+end
+
+@assert efficient(13195) == 29
+```
+
+### Prime Factorization
+
+The key to this solution is a simple idea:
+*instead of just checking if a number divides $n$ we actually divide $n$ by this number*.
+
+Repeatedly dividing $n$ by its factors decreases $n$ very fast, making early
+termination of the algorithm possible.
+
+The algorithm works as follows:\
+for each integer number $k \geq 2$, if $k$ is a factor of $n$, divide $n$ by $k$
+and completely divide out each $k$ before moving to the next $k$.
+When the next $k$ is a factor it will necessarily be prime, as all smaller factors
+have already been removed.
+After dividing out all prime factors $n$ will equal to 1.
+
+```{julia}
+#| output: false
+function optimized(n)
+  while n % 2 == 0          # <1>
+    n = div(n, 2)
+  end
+  k = 3                     # <2>
+  while k * k <= n          # <3>
+    while n % k == 0        # <4>
+      n = div(n, k)
+    end
+    n == 1 && return k      # <5>
+    k += 2                  # <6>
+  end
+  n                         # <7>
+end
+```
+1. divide out all 2's in order to omit even numbers in the main loop - see (6)
+2. set `k` to the first odd prime number
+3. set upper limit for `k` to $\sqrt{n}$
+4. if `k` is a factor of `n`, divide out all `k`'s
+5. return the current factor if `n` equals 1
+6. omit all even numbers
+7. return `n` as the largest remaining factor.
+
+Steps (3), (5) and (7) deserve an extra explanation:\
+we can restrict the upper limit of possible factors to $\sqrt{n}$ (3), as every number
+$n$ can at most have one prime factor greater than $\sqrt{n}$.
+If $n$ equals 1, all factors have been divided out, and the current factor (which
+is necessarily the largest factor) is returned (5).
+If $n$ doesn't equal 1 after finishing the main loop, the upper limit of
+$\sqrt{n}$ for $k$ has been reached.
+In this case we return $n$ as the only remaining factor (7).
+
+```{julia}
+using BenchmarkTools
+@assert optimized(13195) == 29
+@assert optimized(600851475143) == efficient(600851475143)
+@btime efficient(600851475143)
+@btime optimized(600851475143)
+"🏁"
+```
+
+The `optimized` function is about 40 times faster than the `efficient` one, depending
+more on memory allocation than on the actual algorithm design.
+
+This `optimized` implementation uses a loop for dividing out all factors of 2,
+and two nested loops for dividing out all remaining factors.
+If you're wondering how difficult it would be to convert the three loops into recursive
+calls within one function, here's my answer (again with `Haskell`)
+
+```haskell
+factorize n = divide n
+  where
+  divide n
+    | even n = divide (n `div` 2)
+    | otherwise = factor n 3
+  factor m k
+    | m == 1 = k
+    | k * k > m = m
+    | m `rem` k == 0 = factor (m `div` k) k
+    | otherwise = factor m (k+2)
+```
+
+leading to an equivalent running time.
+
+## Prime Numbers
+
+A natural number is called a *prime number* (or a *prime*) if it is greater than 1 and
+cannot be written as the product of two smaller natural numbers.
+The numbers that are not prime are called *composite numbers*.
+In other words, $n$ is prime if $n$ items cannot be divided up into smaller equal-size
+groups of more than one item.
+
+![Primality of the number 7^[<a href="https://commons.wikimedia.org/wiki/File:Prime_number_Cuisenaire_rods_7.png">Hyacinth</a>,  <a href="https://creativecommons.org/licenses/by-sa/4.0">CC BY-SA 4.0</a>]](https://upload.wikimedia.org/wikipedia/commons/3/3e/Prime_number_Cuisenaire_rods_7.png){align="center" width=400}
+
+### Prime Number Theorem
+
+There are infinitely many primes, as demonstrated by *Euclid* around 300 BC.
+No known simple formula separates prime numbers from composite numbers.
+However, the distribution of primes within the natural numbers in the large can be
+statistically modelled.
+
+The *prime number theorem* states that the probability of a randomly chosen large
+number being prime is inversely proportional to its number of digits, that is,
+to its logarithm.
+
+This can be denoted with *asymptotic notation* like so
+$$
+\pi(n) \sim \frac{n}{\ln{n}},
+$$ {#eq-primenumbertheorem}
+
+where $\pi(n)$ is the prime-counting function.
+The $\sim$ in @eq-primenumbertheorem reads as *`is similar to'* and means that the ratio
+of $\pi(n)$ to the right-hand fraction approaches 1 as $n$ grows to infinity.
+
+Let's check that formula for a small $n=1000$ with our `sieve` function for
+generating primes:
+```{julia}
+@show length(sieve(1000))
+@show ceil(Int, 1000 / log(1000))
+"🏁"
+```
+
+Note quite there, but that's not a surprise.
+Considering the *sieve of Eratosthenes* again, we see that starting with 2, every subsequent
+second number is crossed out (not prime), then every third and fifth number, and so forth.
+The further we move upwards, the more numbers have already been crossed out, making it
+less likely to hit a prime.
+
+Let's calculate the values of $\pi(n)$, using `sieve` as the prime-counting function
+
+```{julia}
+primes = sieve(1100)
+x1 = range(0, step=100, stop=1000)
+y1 = Vector{Int}()
+for i in x1
+  push!(y1, count(<=(i), primes))
+end
+push!(y1, 168) # adjusting for plotting the step-function
+for i in y1
+  print("$i ")
+end
+```
+
+and plot them for intervals of length 100 each:
+
+```{julia}
+#| code-fold: true
+#| label: fig-picount
+#| fig-cap: "The values of π(n)"
+#| fig-align: center
+using Plots
+
+p1 = plot(x1, y1[2:end], seriestype=:steps,
+title="The values of π(n)",
+label="π(n)",
+xlabel=("n"),
+xticks=(x1),
+ylims=(0,185),
+yticks=(y1),
+ylabel=("π(n)"),
+linewidth=2)
+
+x2 = range(0, 1000, length=100)
+asymptotic(n) = n / log(n)
+y2 = asymptotic.(x2)
+p2 = plot!(x2, y2, label="asymptotic growth", linewidth=2)
+
+x3 = range(100, step=100, stop=1000)
+y3 = Vector{Int}()
+for i in x3
+  push!(y3, count(p -> (i-100) < p <= i, primes))
+end
+p3 = plot!(x3, y3, marker=(:d, 3), linewidth=2, label="growth per interval")
+plot!(p3)
+```
+
+We can derive following insights from the diagram above:
+
+* the actual value for $\pi(n)$ is larger than the expected asypmtotic growth (at least
+  for small $n$)
+* the growth of $\pi(n)$ per interval is irregular
+* the growth per interval declines in general with increasing $n$

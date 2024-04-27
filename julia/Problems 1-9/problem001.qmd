@@ -9,20 +9,29 @@ If we list all the natural numbers below 10 that are multiples of 3 or 5, we get
 
 **Find the sum of all the multiples of 3 or 5 below 1000.**
 
-## Naive Solution
+## Solution
 
-A first solution might be to iterate over all natural numbers up to the limit and check whether the number is divisible by 3 or 5. If so, just add it to a running sum.
+A multiple of a number $n$ is a number $m$ which can be divided evenly by an integer
+divisor $d$: $\frac{m}{d} = n$, where $d = 3 \lor d = 5$ for this problem.
+For checking whether $d$ divides $m$ without remainder, we use the `modulo` operator
+of a programming language like so: `m % 3 == 0`.
+
+### Naive Solution
+
+A first solution might be to iterate over all natural numbers up to the limit and check
+whether the number (the multiple) is divisible by 3 or 5.
+If so, add it to a running sum.
 
 ```{julia}
 #| output: false
 function iterative(n)
-  sum = 0
-  for i in 3:n-1
-    if i % 3 == 0 || i % 5 == 0
-      sum += i
+  s = 0
+  for m in 3:n-1
+    if m % 3 == 0 || m % 5 == 0
+      s += m
     end
   end
-  sum
+  s
 end
 ```
 
@@ -47,17 +56,27 @@ This is not only way more comprehensive than the iterative solution, but also mo
 
 ```{julia}
   using BenchmarkTools
-  check = "🏁"
   @btime iterative(1000)
   @btime higherOrder(1000)
-  check
+  "🏁"
 ```
 
 The `higherOrder` function is roughly twice as fast as the `iterative` function.
 
-## Efficient Solution
+Once we have two or more solutions for a problem, we can expand our testing by
+checking whether all solutions generate the same result:
 
-The starting point for developing an efficient solution is the following idea: instead of checking if the target value is divisible by 3 or 5, we can check separately for division of 3 and 5 and then add the results. But then we have to subtract the sum of numbers divisible by 15 $(= 3 * 5)$, as we have added them twice in the first step.
+```{julia}
+@assert iterative(1000) == higherOrder(1000)
+```
+
+### Efficient Solution
+
+The starting point for developing an efficient solution is the following idea:
+instead of checking if the target value is divisible by 3 or 5, we can check separately
+for division of 3 and 5 and then add the results.
+But then we have to subtract the sum of numbers divisible by 15 $(= 3 * 5)$,
+as we have added them twice in the first step.
 
 If we would apply our naive implementation for 3 and 5 we'd get:
 
@@ -87,29 +106,37 @@ function efficient(n)
 end
 ```
 
-Now, let's check if everything works as expected:
+Let's check again if everything works as expected:
 
 ```{julia}
 @assert efficient(10) == 23
 @assert efficient(1000) == higherOrder(1000)
 ```
 
-Since the inner function `triangular` represents a closed formula, the runtime complexity of this algorithm is constant, thus $\Theta(1)$. Let's compare the running time to that of the linear `higherOrder` function ($\Theta(n)$):
+Since the inner function `triangular` represents a closed formula, the runtime complexity
+of this algorithm is constant, thus $\Theta(1)$.
+Let's compare the running time to that of the linear `higherOrder` function ($\Theta(n)$):
 
 ```{julia}
 @btime efficient(1000)
 @btime higherOrder(1000)
-check
+"🏁"
 ```
 
-Even for a relatively small input value of 1,000 the `efficient` solution is about 600 times faster!
+Even for a relatively small input value of 1,000 the `efficient` solution is about
+600 times faster!
 
 ## Triangular Numbers
 
-We have used the formula for [Triangular Numbers](https://en.wikipedia.org/wiki/Triangular_number) to efficiently solve this problem (@eq-triangular). But why is it called like that?
+We have used the formula for *Triangular Numbers* (@eq-triangular) to efficiently solve
+this problem.
+But why is it called like that?
 
-A triangular number counts objects arranged in an equilateral triangle. Triangular numbers are a type of figurate number, other examples being square numbers and cube numbers.\
-The *n*th triangular number is the number of objects in the triangular arrangement with *n* objects on each side, and is equal to the sum of the *n* natural numbers from 1 to *n*.
+A triangular number counts objects arranged in an equilateral triangle.
+Triangular numbers are a type of figurate number, other examples being square numbers
+and cube numbers.\
+The *n*th triangular number is the number of objects in the triangular arrangement with
+*n* objects on each side, and is equal to the sum of the *n* natural numbers from 1 to *n*.
 
 We can create a visual representation for $n = 10$ like so:
 
@@ -117,7 +144,6 @@ We can create a visual representation for $n = 10$ like so:
 #| code-fold: true
 #| label: fig-triangle
 #| fig-cap: "Triangular number 10"
-#| fig-cap-location: margin
 #| fig-align: center
 using Luxor
 
@@ -146,15 +172,18 @@ preview()
 
 ### Visual proof
 
-We need to count the elements of a triangular number to conduct this proof. Unfortunately it's not easy to count the elements of a triangle. But it would be easy to count the elements of a rectangle, as there is a simple formula to do so: $n_{elems} = n_{rows} \times n_{cols}$.
+We need to count the elements of a triangular number to conduct this proof.
+Unfortunately it's not easy to count the elements of a triangle.
+But it would be easy to count the elements of a rectangle, as there is a simple formula
+to do so: $rect_{elems} = rect_{rows} \times rect_{cols}$.
 
-So, the trick is to duplicate the triangle, rotate it by 180 degrees and paste it to the original one, resulting in a rectangle:
+So, the trick is to duplicate the triangle, rotate it by 180 degrees and paste it to the
+original one, resulting in a rectangle:
 
 ```{julia}
 #| code-fold: true
 #| label: fig-rectangle
 #| fig-cap: "Rectangular number"
-#| fig-cap-location: margin
 #| fig-align: center
 Drawing(285, 250, "rectangle.svg")
 translate(0, 10)
@@ -168,7 +197,10 @@ finish()
 preview()
 ```
 
-Observe that the number of rows of this rectangle is the same as that from the triangle, but the number of columns has increased by one. Therefore, the number of elements in this rectangle is $n \times (n + 1)$, and as we have duplicated the original triangle, we only need the half of it:
+Observe that the number of rows of this rectangle is the same as that from the triangle,
+but the number of columns has increased by one.
+Therefore, the number of elements in this rectangle is $n \times (n + 1)$, and as we have
+duplicated the original triangle, we only need the half of it:
 
 $$
 T_n = \sum_{k=1}^n k = \frac{n(n+1)}{2} \quad \square
@@ -176,12 +208,15 @@ $$
 
 ### Proof by induction
 
-We'll give another proof for the triangular number formula by [mathematical induction](https://en.wikipedia.org/wiki/Mathematical_induction).
+We'll give another proof for the triangular number formula by *mathematical induction*.
 
-This method is well suited for proving propositions about natural numbers. It consists usually of two cases:
+This method is well suited for proving propositions about natural numbers.
+It usually consists of two cases:
 
-1.  **base case**: this proves the statement for an arbitrarily chosen number $n_0$, in most cases this will be the number 1 as the smallest natural number
-2.  **induction step**: this proves that *if* the statement holds for any given case $n=k$, *then* it must also hold for the next case $n = k + 1$.
+1.  **base case**: this proves the statement for an arbitrarily chosen number $n_0$,
+  in most cases this will be the number 1 as the smallest natural number
+2.  **induction step**: this proves that *if* the statement holds for any given case
+  $n=k$ *then* it must also hold for the next case $n = k + 1$.
 
 These two steps together establish that the statement holds for every natural number $n$.
 
@@ -197,7 +232,9 @@ we formulate the *induction hypothesis* like so $$
 \sum_{k=1}^{n+1} k = \frac{(n+1)(n+2)}{2}.
 $$
 
-For the proof we'll expand and reshape the left-hand side (*lhs*) of the hypothesis and check whether this leads to the same result as the right-hand side (*rhs*) of this equation:
+For the proof we'll expand and reshape the left-hand side (*lhs*) of the hypothesis and
+check whether this leads to the same result as the right-hand side (*rhs*) of this
+equation:
 
 $$
 \begin{align*}
@@ -214,10 +251,11 @@ $ba + ca = a(b+c)$.
 
 ### Proof with series
 
-The last proof we'll cover here was given by the German mathematician *Carl Friedrich Gauß*
-at the age of 9.
+The last proof we'll cover here was given by the German mathematician
+*Carl Friedrich Gauß* at the age of 9.
 He added all the natural numbers up to $n$ in a line, and in a second line he added them
-again, but in reverse order. Finally, he added both lines like so:
+again, but in reverse order.
+Finally, he added both lines like so:
 
 $$
 \begin{align*}

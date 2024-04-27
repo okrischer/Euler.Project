@@ -15,10 +15,9 @@ $$
 By considering the terms in the Fibonacci sequence whose values do not exceed four
 million, find the sum of the even-valued terms.
 
-## Recursive Solution
+## Solution
 
-The [Fibonacci sequence](https://en.wikipedia.org/wiki/Fibonacci_sequence)
-is defined by the recurrence relation
+The *Fibonacci sequence* is defined by the recurrence relation
 
 $$
 \begin{align}
@@ -28,9 +27,10 @@ F_n &= F_{n-1} + F_{n-2}, \quad \mathrm{for} \ n > 1.
 \end{align}
 $$ {#eq-fibonacci}
 
-Recurrence problems lend themself naturally to
-[recursion](https://en.wikipedia.org/wiki/Recursion_(computer_science)),
-a computational technique where a function calls itself.
+### Recursive Solution
+
+Recurrence problems lend themself naturally to *recursion*, a computational technique
+where a function calls itself.
 
 Recursion consists usually of two steps
 
@@ -98,7 +98,7 @@ and test it like so:
 @assert recursive(100) == 44
 ```
 
-## Iterative Solution
+### Iterative Solution
 
 Another way to avoid exponential growth from multiple recursion is to convert it to
 *corecursion* by passing both previous values ($n-1$ and $n-2$) to the function at once.
@@ -144,10 +144,9 @@ Which solution is more performant?
 
 ```{julia}
 using BenchmarkTools
-check = "🏁"
 @btime recursive(4_000_000)
 @btime iterative(4_000_000)
-check
+"🏁"
 ```
 
 `iterative` is more than 10 times faster than `recursive`, but that's not due to
@@ -188,22 +187,24 @@ end
 ```{julia}
 @assert optimized(4_000_000) == iterative(4_000_000)
 @btime optimized(4_000_000)
-check
+"🏁"
 ```
 
 That speeds up our function by a factor of 3.
 
-## Fibonacci Sequence
+## Fibonacci Numbers
 
-The Fibonacci numbers are named after the Italian mathematician Leonardo of Pisa, also known
-as Fibonacci, who introduced the sequence to Western European mathematics in his 1202 book
-Liber Abaci.
+The Fibonacci numbers are named after the Italian mathematician Leonardo of Pisa, also
+known as Fibonacci, who introduced the sequence to Western European mathematics in his
+1202 book *Liber Abaci*.
 
 Fibonacci numbers appear unexpectedly often in mathematics, and have a wide variation of
 applications.
 They also appear in biological settings, such as branching in trees, the arrangement of
 leaves on a stem, the fruit sprouts of a pineapple, the flowering of an artichoke, and the
 arrangement of a pine cone's bracts, though they do not occur in all species.
+
+![Fibonacci Spiral in a sunflower](fib_sunflower.jpg){fig-align="center"}
 
 Fibonacci numbers are also strongly related to the golden ratio: Binet's formula expresses
 the *n*th Fibonacci number in terms of *n* and the golden ratio, and implies that the ratio
@@ -214,8 +215,6 @@ We'll discover some of these applications in subsequent problems.
 ### History and Origin
 
 The Fibonacci sequence appears in Indian mathematics, in connection with Sanskrit prosody.
-Knowledge of the Fibonacci sequence was expressed as early as Pingala (c. 450 BC–200 BC).
-
 Fibonacci rediscoverd the sequence and used it to calculate the growth of rabbit populations.
 He considers the growth of an idealized (biologically unrealistic) rabbit population,
 assuming that
@@ -225,19 +224,18 @@ assuming that
 * at the end of their second month they always produce another pair of rabbits
 * rabbits never die, but continue breeding forever.
 
-![Fibonacci's rabbits](https://upload.wikimedia.org/wikipedia/commons/a/af/Fibonacci_Rabbits.svg){fig-align="center"}
+![Fibonacci's rabbits^[<a href="https://commons.wikimedia.org/wiki/File:Fibonacci_Rabbits.svg">Romain</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0 Deed</a>]](https://upload.wikimedia.org/wikipedia/commons/a/af/Fibonacci_Rabbits.svg){align="center"}
 
 ### Fibonacci Tiling and Spiral
 
-The Fibonacci spiral is an approximation of the
-[golden spiral](https://en.wikipedia.org/wiki/Golden_spiral) created by drawing circular arcs
-connecting the opposite corners of squares in the Fibonacci tiling (@fig-fibonacci).
+The Fibonacci spiral is an approximation of the *golden spiral* created by drawing
+circular arcs connecting the opposite corners of squares in the Fibonacci tiling
+(see @fig-fibonacci).
 
 ```{julia}
 #| code-fold: true
 #| label: fig-fibonacci
 #| fig-cap: "Fibonacci Tiling"
-#| fig-cap-location: margin
 #| fig-align: center
 using Luxor, Colors
 

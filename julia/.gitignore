@@ -2,4 +2,5 @@
 /.jupyter_cache/
 /_freeze/
 /_site/
+*.jpg
 *.svg
