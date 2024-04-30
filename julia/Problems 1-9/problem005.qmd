@@ -1,0 +1,162 @@
+---
+title: "Problem 5"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+2520 is the smallest number that can be divided by each of the numbers from 1 to 10
+without any remainder.
+
+**What is the smallest positive number that is evenly divisible by all of the
+numbers from 1 to 20?**
+
+## Solution
+
+We are searching for the least commom multiple ($lcm$) for all numbers in the range
+$[2, 20]$.
+While there is a closed formula to compute the $lcm$ of two numbers
+
+$$
+lcm(a, b) = \frac{ab}{gcd(a, b)}
+$$
+
+where $gcd(a,b)$ is the *greatest common divisor* of $a$ and $b$, this formula is not suitable
+for the given problem, as we'd have to do this calculation for every pair of numbers in the
+given range.
+
+### Prime Factorization
+
+We'll use a technique called *prime factorization* for solving this problem:\
+write every number in the range $[2, 20]$ as a product of prime numbers, and express it
+as a product of prime number powers.
+For example, the number 12 can be wiritten as
+$$
+12 = 2 \times 2 \times 3 = 2^2 \times 3.
+$$
+
+The $lcm$ of a range of numbers will be the product of the highest powers of each occuring prime factor.
+For $n = 10$ as upper limit for the range we'll get these highest powers of prime factors:
+
+$$
+\begin{align}
+2^3 &= 8 \\
+3^2 &= 9 \\
+5^1 &= 5 \\
+7^1 &= 7
+\end{align}
+$$
+
+The result can now be computed by multiplying those highest powers:
+
+```{julia}
+prod([8, 9, 5, 7])
+```
+
+which yields the correct result according to the problem statement.
+
+Now, we could continue the sequence for the prime factors 11, 13, 17, and 19
+to solve for $n = 20$.
+All those factors occur only with their highest power beeing 1.\
+But beware! The highest power for factor 2 is now 4, as $2^4 = 16$ is still less than 20.
+The computation `prod([16,9,5,7,11,13,17,19])` will yield the correct solution for
+the problem.
+
+But we want to go a step further and compute the result for any given upper limit of
+the range.
+For that we first need to calculate the prime factors for a given number.
+We're using a modified version of the `optimized` function from
+[Problem 3](problem003.qmd#prime-factorization) for that:
+
+```{julia}
+function primeFactors(n)
+  pf::Vector{Int} = []
+  powers = Dict{Int, Int}()
+  k = 2
+  while k * k <= n
+    while n % k == 0
+      push!(pf, k)                  # <1>
+      n = div(n, k)
+    end
+    n == 1 && break
+    k == 2 ? k += 1 : k += 2
+  end
+  n != 1 && push!(pf, n)            # <2>
+  for f in unique(pf)
+    powers[f] = count(==(f), pf)    # <3>
+  end
+  powers
+end
+
+primeFactors(12)
+```
+1. add the current factor to the vector of prime factors
+2. add the remaining `n` to the prime factors if the limit of $\sqrt{n}$ for $k$
+  has been reached
+3. count the occurences of every distinct factor and store it in the powers dictionary
+
+Having the prime factor powers for every number in the range, we can merge them into a
+single `Dictionary` like so:
+
+```{julia}
+function highestPowers(n)
+  hp = primeFactors(2)                                        # <1>
+  for p in 3:n
+    mergewith!((p1, p2) -> max(p1, p2), hp, primeFactors(p))  # <2>
+  end
+  hp
+end
+
+highestPowers(20)
+```
+1. create a dictionary for the prime powers of 2
+2. update the dictionary with the prime powers of every $n > 2$ by comparing their values
+
+```{julia}
+function solve(n)
+  result = 1
+  for (base, power) in pairs(highestPowers(n))    # <1>
+    result *= base^power                          # <2>
+  end
+  result
+end
+
+@assert solve(20) == prod([16,9,5,7,11,13,17,19])
+```
+1. run through all key-value pairs from the dictionary of prime powers
+2. compute the prime power and multiply it with the result so far
+
+That's quite a complex algorithm, consisting of three functions;
+but once again, I want to show you how to implement an equivalent algorithm with
+`Haskell`, only using lists of integers:
+
+```haskell
+solve :: Int -> Int
+solve n = prod n $ hp n $ getPF [2..n]
+  where
+    getPF [] = []
+    getPF (x:xs) = pf x (2:[3,5..n]) : getPF xs
+
+hp :: Int -> [[Int]] -> [Int]
+hp 1 _ = []
+hp n f = maximum (map (length . filter (==n)) f) : hp (n-1) f
+
+prod :: Int -> [Int] -> Int
+prod n [] = 1
+prod n (x:xs)
+  | x == 0 = prod (n-1) xs
+  | otherwise = n^x * prod (n-1) xs
+
+pf :: Int -> [Int] -> [Int]
+pf n nums@(x:xs)
+  | x*x > n = [n]
+  | rem n x == 0 = x : pf (div n x) nums
+  | otherwise = pf n xs
+```
+Lists are very versatile in a functional programming language and with a list of lists
+one could easily model the equivalent of a dictionary.
+Also observe that the Haskell compiler `GHC` reads the whole syntax tree of a program
+at once, allowing references to functions (function-calls) even before those functions
+have been defined.
+With that one can structure a program more naturally from top to down, instead of having
+to define the callable functions first.

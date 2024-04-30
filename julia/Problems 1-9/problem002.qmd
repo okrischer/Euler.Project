@@ -224,7 +224,7 @@ assuming that
 * at the end of their second month they always produce another pair of rabbits
 * rabbits never die, but continue breeding forever.
 
-![Fibonacci's rabbits^[<a href="https://commons.wikimedia.org/wiki/File:Fibonacci_Rabbits.svg">Romain</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0 Deed</a>]](https://upload.wikimedia.org/wikipedia/commons/a/af/Fibonacci_Rabbits.svg){align="center"}
+![Fibonacci's rabbits^[<a href="https://commons.wikimedia.org/wiki/File:Fibonacci_Rabbits.svg">Romain</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0 Deed</a>]](https://upload.wikimedia.org/wikipedia/commons/a/af/Fibonacci_Rabbits.svg){align="center" width=400}
 
 ### Fibonacci Tiling and Spiral
 

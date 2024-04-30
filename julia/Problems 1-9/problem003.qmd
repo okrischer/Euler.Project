@@ -132,6 +132,7 @@ After dividing out all prime factors $n$ will equal to 1.
 
 ```{julia}
 #| output: false
+#| lst-label: lst-primefact
 function optimized(n)
   while n % 2 == 0          # <1>
     n = div(n, 2)

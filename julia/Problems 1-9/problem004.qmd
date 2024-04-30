@@ -1,0 +1,140 @@
+---
+title: "Problem 4"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+A palindromic number reads the same both ways. The largest palindrome made from the product
+of two 2-digit numbers is $9009=91 \times 99$.
+
+**Find the largest palindrome made from the product of two 3-digit numbers**.
+
+## Solution
+
+This is a combinatorial problem.
+One way to solve such problems is to use a *generate and test* search.
+The key idea of this technique is to generate all possible solutions (*candidates*) and then
+to test each of them whether they meet the given condition (in this case, being palindrome).
+
+A 3-digit number is a natural number within the interval $[100, 999]$, which can be denoted
+as a set like so:
+
+$$
+A = \{x \in \mathbb{N} \mid x \geq 100 \land x \leq 999\}.
+$$
+
+Since we need the product of two of these numbers, we need a second set $B$ with the same
+definition as $A$; then we can define the set of candidates as the *cartesian product*
+
+$$
+A \times B = \{ab \mid a \in A \land b \in B\}.
+$$
+
+### Exhaustive Search
+
+Let's first create the *test*-function, which checks whether the digits of a candidate in
+reverse order equal the digits in original order:
+
+```{julia}
+function isPalindrome(n)
+  m = n
+  reversed = 0
+  while m > 0
+    reversed = 10 * reversed + m % 10
+    m = div(m, 10)
+  end
+  n == reversed
+end
+
+@assert isPalindrome(123454321)
+@assert isPalindrome(12344321)
+@assert !isPalindrome(1234421)
+```
+We can now implement the *generate*-function, employing the test-function for every
+generated candidate:
+
+```{julia}
+function largestPalindrome(lower, upper)
+  Pₘₐₓ = 0
+  for a in lower:upper
+    for b in lower:upper
+      p = a*b
+      isPalindrome(p) && p > Pₘₐₓ ? Pₘₐₓ = p : nothing
+    end
+  end
+  Pₘₐₓ
+end
+
+@assert largestPalindrome(10, 99) == 9009
+```
+
+This algorithm is an example for an *exhaustive search*, where every possible solution
+is generated and tested.
+In creating the cartesian product for 3-digit numbers, we generate and test
+$900 \times 900 = 810,000$ candidates, thus the running time is $\Theta (n^2)$.
+
+### Constraining the *Generate*-Function
+
+In order to reduce the number of candidates to check, leading to a more efficient
+alternative, we need to find additional *conditions* for *constraining* the generate-function.
+
+First, we're going to exploit the *monotonic* property of the generate-function:
+the product of $a$ and $b$ is strictly increasing as its multiplicands are growing.
+
+Thus, it is far more likely to find the largest palindrome early when starting with the
+upper limit and counting down to the lower limits of $a$ and $b$.
+Then we're also able to terminate the algorithm when we cannot further improve on the
+largest palindrom so far (i.e. $ab \leq P_{max}$).
+
+```{julia}
+function solution1(lower, upper)
+  Pₘₐₓ = 0
+  for a in upper:-1:lower
+    for b in upper:-1:lower
+      p = a*b
+      p <= Pₘₐₓ ? break : isPalindrome(p) ? Pₘₐₓ = p : nothing
+    end
+  end
+  Pₘₐₓ
+end
+
+@assert solution1(10, 99) == 9009
+@assert solution1(100, 999) == largestPalindrome(100, 999)
+```
+
+That leads to a running time of $\mathcal{O} (n \log{n})$.
+But still the function checks many numbers multiple times.
+For example the number 69696 is checked both when $a=132$ and $b=528$, and when $a=528$ and
+$b=132$.
+To stop checking numbers twice, we can assume $a \leq b$, roughly halving the number of
+calculations needed.
+
+```{julia}
+function solution2(lower, upper)
+  Pₘₐₓ = 0
+  for a in upper:-1:lower
+    for b in upper:-1:a
+      p = a*b
+      p <= Pₘₐₓ ? break : isPalindrome(p) ? Pₘₐₓ = p : nothing
+    end
+  end
+  Pₘₐₓ
+end
+
+@assert solution2(10, 99) == 9009
+@assert solution2(100, 999) == solution1(100, 999)
+```
+
+Let's have a look on the running times:
+
+```{julia}
+using BenchmarkTools
+@btime largestPalindrome(100, 999)
+@btime solution1(100, 999)
+@btime solution2(100, 999)
+"🏁"
+```
+
+The improvement of `solution1` speeds up the algorithm roughly by a factor of 100;
+`solution2` is about twice as fast as this (as expected).
