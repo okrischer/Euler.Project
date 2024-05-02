@@ -1,0 +1,197 @@
+---
+title: "Problem 6"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+The sum of the squares of the first ten natural numbers is
+$$1^2 + 2^2 + \dots + 10^2 = 385.$$
+The square of the sum of the first ten natural numbers is
+$$(1 + 2 + \dots + 10)^2 = 55^2 = 3025.$$
+
+Hence the difference between the sum of the squares of the first ten natural numbers and the
+square of the sum is $3025 - 385 = 2640$.
+
+**Find the difference between the sum of the squares of the first one hundred natural numbers
+and the square of the sum.**
+
+## Solution
+
+### Iterative Solution
+
+We can use higher-order functions for solving the problem, which will iterate over all
+elements in the given range.
+Thus, the complexity of this algorithm is $\Theta(n)$.
+
+```{julia}
+sumOfSquares(n::Integer) = sum(x -> x^2, 1:n)
+@show sumOfSquares(10)
+
+squareOfSum(n::Integer) = sum(1:n)^2
+@show squareOfSum(10)
+
+solveIter(n::Integer) = squareOfSum(n) - sumOfSquares(n)
+@assert solveIter(10) == 2640
+```
+
+### Solving with closed Formulas
+
+We can apply the formula for *Triangular Numbers* from
+[Problem 1](problem001.qmd#eq-triangular) to compute the square of the sum:
+
+```{julia}
+closedSqS(n::Integer) = (div(n*(n+1), 2))^2
+closedSqS(10)
+```
+
+There's also a formula for computing the sum of squares
+$$
+\frac{n (n+1) (2n + 1)}{6},
+$$
+
+which can be implemented like so:
+
+```{julia}
+closedSoS(n::Integer) = div(n*(n+1)*(2n + 1), 6)
+closedSoS(10)
+```
+
+Solving the problem with two closed formulas leads to a constant running time,
+thus $\Theta(1)$.
+
+```{julia}
+solveClosed(n::Integer) = closedSqS(n) - closedSoS(n)
+@assert solveClosed(10) == 2640
+@assert solveClosed(100) == solveIter(100)
+```
+
+## Efficiency of Algorithms
+
+Whenever we're reasonating about the efficiency of algorithms, we're using
+*asymptotic notation* for doing so.
+The key idea is to consider the complexity of an algorithm in terms of its *running time*
+for a big input value, that is for $n \to \infty$.
+
+In particular, we express the running time as a function of $n$, where the function value
+is denoted is a polynom of $n$, calculating the necessary steps the algorithm has to
+perform in order to produce the desired result, for example
+
+$$
+g(n) = a * n^2 + b * n + c \ , \quad \textrm{ for } n \to \infty.
+$$
+
+In this case that's a polynomial of second degree (a quadratic polynomial), as $n$ occurs
+with its highest power of 2.
+When $n$ is getting bigger, the term with the highest power of $n$ is most signifanct,
+so we just neglect all other terms, leading to
+
+$$
+g(n) = c * n^2
+$$
+
+where $c$ is some constant value, which we can neglect likewise.
+Finally, we can do without the function name if we mark the term with a special symbol
+$\mathcal{O}$, leading to the so called *big O notation*, for our example
+
+$$
+\mathcal{O} (n^2),
+$$
+
+which reads as: "in the order of n square".
+
+### Asymptotic Notation
+
+Actually, there are three different symbols being used for denoting the asymptotic
+complexity of an algorithm, each of them with a slightly different meaning:
+
+* $\mathcal{O}$: denotes the complexity as an upper limit, that is, the algorithm will need
+  at most this number of steps to complete, sometimes significantly less
+* $\Theta$: denotes the given term as an upper *and* a lower limit, i.e. the algorithm will
+  always take this number of steps
+* $\Omega$: denotes a lower limit, i.e. the algoritm will use at least this number of steps,
+  sometimes significantly more.
+
+There is a number of standard complexity classes, which will usually be sufficient to
+describe the complexity (at least for the problems in this document).
+They are, from most to least efficient:
+
+* $\Theta (1)$: constant
+* $\Theta (\log n)$: logarithmic
+* $\Theta (n)$: linear
+* $\Theta (n \log n)$: loglinear
+* $\Theta (n^2)$: quadratic
+* $\Theta (2^n)$: exponential
+
+Problems of the last category belong to the class of *NP* problems, which cannot be solved deterministically in polynomial time.
+On the other hand, all non-NP problems are belived to be solvable in a running time of $\Theta (n^3)$ or less.
+
+Let's illustrate the growth rates of these complexity classes:
+
+```{julia}
+#| code-fold: true
+#| label: fig-asymptotic
+#| fig-cap: "Growth of functions used for complexity analysis"
+#| fig-align: center
+using Plots
+using LaTeXStrings
+
+n = range(0, 100, length=101)
+loglinear(n) = n * log(n)
+
+plot(n, [log.(n), n],
+title="Growth of functions of n",
+label=[L"\log{n}" "n"],
+xlabel=("n"),
+ylabel=("f(n)"),
+linewidth=2)
+
+plot!(n, loglinear.(n), label=L"n \log n", ylims=(0, 100), linewidth=2)
+plot!(n, x -> x^2, label=L"n^2", legend=:outerbottom, legendcolumns=4, linewidth=2)
+```
+
+### Verifying Efficiency with Benchmarks
+
+Let's check the impact of converting an algorithm from $\Theta(n)$ to $\Theta(1)$ by
+conducting some benchmarks for our solutions for this problem.
+As the meaning of asymptotic notation becomes more significant whith a growing $n$,
+we're going to explore the running times twice, first for a relative small $n=1000$,
+and then for a larger $n=1000000$.
+
+```{julia}
+using BenchmarkTools
+@benchmark solveIter(BigInt(1_000))
+```
+
+```{julia}
+@benchmark solveIter(BigInt(1_000_000))
+```
+
+The running time of `solveIter(1_000)` is $114 \ \mu s$ on average, where one
+$\mu s$ (microsecond) is one millionth second ($10^{-6} s$).
+When benchmarking with an input being $1000=10^3$ times bigger, we would
+expect that the resulting running time is also in the order of $10^3$ bigger for an
+algorithm with $\Theta (n)$.
+And that's exactly what happend: the average running time of `solveIter(1_000_000)`
+is $228 \ ms$, where one $ms$ (millisecond) is one thousandth second
+($1 \ ms = 10^{-3} s = 10^3 \mu s$).
+So its running time is about $2 * 10^3$ times bigger, and we already know that the
+factor of $2$ can be neglected when reasonating at asymptotic scale.
+
+```{julia}
+@benchmark solveClosed(BigInt(1_000))
+```
+
+```{julia}
+@benchmark solveClosed(BigInt(1_000_000))
+```
+
+The running time of `solveClosed(1_000)` is $489 \ ns$ on average, where one $ns$ (nanosecond)
+is one billionth of a second ($1 \ ns = 10^{-9} s = 10^{-6} ms = 10^{-3} \mu s$).
+This is not only in the order of $10^3$ faster than the iterative solution,
+but also stays constant for an input being $10^3$ times bigger, which was to
+be expected for an algorithm with a constant running time of $\Theta (1)$.
+
+Now you can see why spending some time for finding a closed formula for a
+mathematical problem is well worth the effort.
+

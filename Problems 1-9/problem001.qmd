@@ -113,8 +113,10 @@ Let's check again if everything works as expected:
 @assert efficient(1000) == higherOrder(1000)
 ```
 
-Since the inner function `triangular` represents a closed formula, the runtime complexity
+Since the inner function `triangular` represents a closed formula, the running time
 of this algorithm is constant, thus $\Theta(1)$.
+If you are not familiar with *asymptotic notation* for denoting the running time of an
+algorithm, see [Problem 6](problem006.qmd#efficiency-of-algorithms) for a short introduction.
 Let's compare the running time to that of the linear `higherOrder` function ($\Theta(n)$):
 
 ```{julia}

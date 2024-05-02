@@ -1,0 +1,123 @@
+---
+title: "Problem 7"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+By listing the first six prime numbers: $2,3,5,7,11$, and $13$, we can see that the
+$6$th prime is $13$.
+
+**What is the $10,001$st prime number?**
+
+## Solution
+
+### Trial Division
+
+We're going to use a simple primality test called *trial division* for this solution.
+For that, we simply check whether a given number $n$ is divisible by 2 or any odd number
+in the interval [3, $\sqrt n$].
+If so, it isn't a prime number.
+
+```{julia}
+function isPrime(n)
+  n % 2 == 0 && return false
+  k = 3
+  while k * k <= n
+    if n % k == 0
+      return false
+    end
+    k += 2
+  end
+  return true
+end
+
+@assert isPrime(13)
+```
+
+
+Now, for solving the problem, we'll iterate over all odd numbers and check whether the
+current number is prime, using our `isPrime` function.
+If so, we increase the prime-counter by 1, until that counter reaches the given limit,
+and finally return the current number.
+
+```{julia}
+function solveTrial(n)
+  primes = 1
+  k = 1
+  while primes < n
+    k += 2
+    isPrime(k) ? primes += 1 : nothing
+  end
+  k
+end
+
+@assert solveTrial(6) == 13
+```
+
+
+### Sieve of Eratosthenes
+
+We'll use again the *sieve of Eratosthenes* for generating the 10,001st prime number, which will be much more efficient than the *trial division* from above.
+
+The only problem is, that we don't know the upper bound for calling the `sieve` function.
+
+Using the *prime number theorem*
+
+$$
+\pi(n) \sim \frac{n}{\log n},
+$$
+
+we can set $\pi(n)$ to 10001, and as we know that the number of primes per constant interval
+decreases with growing $n$ (see [Problem 3](problem003.qmd#prime-number-theorem)),
+we can write this as the inequality
+
+$$
+10001 \geq \frac{n}{\log n}.
+$$
+
+Making some educated guesses for $n$, we can check if this inequality holds:
+
+```{julia}
+@show 100_000 / log(100_000)
+@show 110_000 / log(110_000)
+@show 120_000 / log(120_000)
+"🏁"
+```
+We set $n = 110000$, the biggest value for which $\frac{n}{\log n} \leq 10001$:
+
+```{julia}
+function solveSieve(n)
+  function sieve(limit::Int)
+    primes = Vector{Int}()
+    isPrime = trues(limit+1)
+    for i in 2:limit
+      if isPrime[i]
+        push!(primes, i)
+        for j in i:div(limit, i)
+          isPrime[i*j] = false
+        end
+      end
+    end
+    primes
+  end
+
+  sieve(110_000)[n]
+end
+
+@assert solveSieve(6) == 13
+@assert solveSieve(10_001) == solveTrial(10_001)
+```
+Finally, let's do the obligatory benchmarks:
+
+```{julia}
+using BenchmarkTools
+@benchmark solveTrial(10_001)
+```
+
+```{julia}
+@benchmark solveSieve(10_001)
+```
+
+We see that `solveSieve` is 5 times faster than `solveTrial`, even though it's allocating
+objects in the heap.
