@@ -14,25 +14,37 @@ $6$th prime is $13$.
 
 ### Trial Division
 
-We're going to use a simple primality test called *trial division* for this solution.
-For that, we simply check whether a given number $n$ is divisible by 2 or any odd number
-in the interval [3, $\sqrt n$].
-If so, it isn't a prime number.
+We can test whether a number is prime by *trial division*:
+given an input number $n$, check whether it is divisible by any number between 2 and $\sqrt{n}$ (i.e., whether the division leaves no remainder).
+If so, then $n$ is *composite*.
+Otherwise, it is *prime*.\
+For any divisor $p \geq \sqrt{n}$ there must be another divisor $q = \frac{n}{p} \textrm{ with } q^2 \leq n$, and therefore looking for divisors up to $\sqrt{n}$ is sufficient.
+
+::: {.callout-note title="Definition of Primes"}
+A natural number $n$ is **prime** if $n > 1$ and no number $p$ with $p^2 \leq n$ divides $n$. More formally
+
+$P(n) \equiv n \in \mathbb{N} \land n > 1 \land \forall p((p > 1 \land p^2 \leq n) \Rightarrow \neg p|n).$
+:::
+
+Translating that definition into an algorithm, we check only for the number 2 and every subsequent odd number as divisors: 
 
 ```{julia}
 function isPrime(n)
+  n == 2 && return true
   n % 2 == 0 && return false
   k = 3
   while k * k <= n
-    if n % k == 0
-      return false
-    end
+    n % k == 0 && return false
     k += 2
   end
-  return true
+  true
 end
 
 @assert isPrime(13)
+
+for n in 3:2:20
+  @show n, isPrime(n)
+end
 ```
 
 
@@ -60,31 +72,18 @@ end
 
 We'll use again the *sieve of Eratosthenes* for generating the 10,001st prime number, which will be much more efficient than the *trial division* from above.
 
-The only problem is, that we don't know the upper bound for calling the `sieve` function.
+The problem is that we don't know in advance with which value we should call the `sieve` function, that is, up to which number potential primes should be created.
+Of course, we could find that limit with *trial and error*, but since this is a course in mathematics, we should try to get a more reasonable answer.
 
-Using the *prime number theorem*
-
-$$
-\pi(n) \sim \frac{n}{\log n},
-$$
-
-we can set $\pi(n)$ to 10001, and as we know that the number of primes per constant interval
-decreases with growing $n$ (see [Problem 3](problem003.qmd#prime-number-theorem)),
-we can write this as the inequality
-
-$$
-10001 \geq \frac{n}{\log n}.
-$$
+Using the prime number theorem $\pi(n) \sim \frac{n}{\ln n}$, we can set $\pi(n)$ to $10001$, and as we know that the number of primes per constant interval decreases with growing $n$, we can write this as the inequality $10001 \geq \frac{n}{\ln n}$.
 
 Making some educated guesses for $n$, we can check if this inequality holds:
 
-```{julia}
-@show 100_000 / log(100_000)
-@show 110_000 / log(110_000)
-@show 120_000 / log(120_000)
-"🏁"
-```
-We set $n = 110000$, the biggest value for which $\frac{n}{\log n} \leq 10001$:
+* $90000 \div \ln{90000} \approx 7889$
+* $105000 \div ln{105000} \approx 9081$
+* $120000 \div ln{120000} \approx 10260$
+
+We set $n = 105000$, the biggest value for which $\frac{n}{\ln n} \leq 10001$:
 
 ```{julia}
 function solveSieve(n)
@@ -102,7 +101,7 @@ function solveSieve(n)
     primes
   end
 
-  sieve(110_000)[n]
+  sieve(105_000)[n]
 end
 
 @assert solveSieve(6) == 13

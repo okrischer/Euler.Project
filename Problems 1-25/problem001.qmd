@@ -1,0 +1,127 @@
+---
+title: "Problem 1"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+If we list all the natural numbers below 10 that are multiples of 3 or 5, we get 3, 5, 6 and 9. The sum of these multiples is 23.
+
+**Find the sum of all the multiples of 3 or 5 below 1000.**
+
+## Solution
+
+A multiple of a number $n$ is a number $m$ which can be divided evenly by an integer
+divisor $d$: $\frac{m}{d} = n$, where $d = 3 \lor d = 5$ for this problem.
+For checking whether $d$ divides $m$ without remainder, we use the `modulo` operator
+of a programming language like so: `m % 3 == 0`.
+
+### Naive Solution
+
+A first solution might be to iterate over all natural numbers up to the limit and check
+whether the number (the multiple) is divisible by 3 or 5.
+If so, add it to a running sum.
+
+```{julia}
+#| output: false
+function iterative(n)
+  s = 0
+  for m in 3:n-1
+    if m % 3 == 0 || m % 5 == 0
+      s += m
+    end
+  end
+  s
+end
+```
+
+```{julia}
+@assert iterative(10) == 23
+```
+
+If we don't see any output from assertions, everything is okay.
+
+A more functional approach would be to use the *higher-order* function `sum`:
+
+```{julia}
+#| output: false
+higherOrder(n) = sum(x -> x % 3 == 0 || x % 5 == 0 ? x : 0, 3:n-1)
+```
+
+```{julia}
+@assert higherOrder(10) == 23
+```
+
+This is not only way more comprehensive than the iterative solution, but also more efficient:
+
+```{julia}
+  using BenchmarkTools
+  @btime iterative(1000)
+  @btime higherOrder(1000)
+  "🏁"
+```
+
+The `higherOrder` function is roughly twice as fast as the `iterative` function.
+
+Once we have two or more solutions for a problem, we can expand our testing by
+checking whether all solutions generate the same result:
+
+```{julia}
+@assert iterative(1000) == higherOrder(1000)
+```
+
+### Efficient Solution
+
+The starting point for developing an efficient solution is the following idea:
+instead of checking if the target value is divisible by 3 or 5, we can check separately
+for division of 3 and 5 and then add the results.
+But then we have to subtract the sum of numbers divisible by 15 $(= 3 * 5)$,
+as we have added them twice in the first step.
+
+If we would apply our naive implementation for 3 and 5 we'd get:
+
+$$
+\begin{align}
+3 + 6 + 9 + \cdots + 999 &= 3*(1 + 2 + 3 +\cdots + 333) \\
+5 + 10 + 15 + \cdots + 995 &= 5*(1 + 2 + 3 + \cdots + 199)
+\end{align}
+$$
+
+Thus, we can apply the equation for *Triangular Numbers*
+
+$$
+T_n = \sum_{k=1}^n k = 1+2+3+\cdots+n = \frac{n(n+1)}{2}
+$$ {#eq-triangular}
+
+as an inner function to our solution:
+
+```{julia}
+#| output: false
+function efficient(n)
+  function triangular(factor)
+    m = div(n-1, factor)
+    div(factor*m*(m+1), 2)
+  end
+  triangular(3) + triangular(5) - triangular(15)
+end
+```
+
+Let's check again if everything works as expected:
+
+```{julia}
+@assert efficient(10) == 23
+@assert efficient(1000) == higherOrder(1000)
+```
+
+Since the inner function `triangular` represents a closed formula, the running time
+of this algorithm is constant, thus $\Theta(1)$.
+Let's compare the running time to that of the linear `higherOrder` function ($\Theta(n)$):
+
+```{julia}
+@btime efficient(1000)
+@btime higherOrder(1000)
+"🏁"
+```
+
+Even for a relatively small input value of 1,000 the `efficient` solution is about
+600 times faster!

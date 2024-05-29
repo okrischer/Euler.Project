@@ -1,0 +1,120 @@
+---
+title: "Problem 10"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+The sum of the primes below 10 is $2+3+5+7=17$.
+
+**Find the sum of all the primes below two million.**
+
+## Solution
+
+### Trial Divison
+
+```{julia}
+function isPrime(n)
+  n % 2 == 0 && return false
+  k = 3
+  while k * k <= n
+    n % k == 0 && return false
+    k += 2
+  end
+  true
+end
+
+function sumPrimes(limit::Int)
+	sump = 5
+	for n in 5:2:limit
+		isPrime(n) ? sump += n : nothing
+	end
+	sump
+end
+
+@assert sumPrimes(10) == 17
+```
+
+This solution shows an acceptable performance, but still $\frac{n \sqrt{n}}{2} \approx 1.41e9$ divisions for $n = 2,000,000$ have to be carried out for finding all primes.\
+Looking at the following benchmark, we can see that the function manages to carry out 10 divisions per *nanosecond*, leading to a running time of 140 *milliseconds* (at least on the machine where this notebook was written).
+
+```{julia}
+using BenchmarkTools
+@benchmark sumPrimes(2_000_000)
+```
+
+### Sieving Primes
+
+Using a mixed strategy, we first use a sieve to find the primes up to $\sqrt{n}$, then perform trial division by these primes.
+In order to increase performance, we are inlining the sieve in our function:
+
+```{julia}
+function sumPropt(limit::Int)
+  marked = falses(limit) 				          # <1>
+  for n in 4:2:limit
+    marked[n] = true 						          # <2>
+  end
+  for n in 3:2:Int(floor(sqrt(limit))) 		# <3>
+    if !marked[n] 							          # <4>
+      for m in n*n:2n:limit
+        marked[m] = true 				          # <5>
+      end
+    end
+  end
+  sump = 0
+  for n in 2:limit
+    if !marked[n] 							          # <6>
+      sump += n
+    end
+  end
+  sump
+end
+
+@assert sumPropt(2_000_000) == sumPrimes(2_000_000)
+```
+1. create a `BitArray` representing unmarked numbers up to the limit
+2. mark all even numbers > 2 as not prime
+3. iterate over all odd numbers up to $\sqrt{limit}$
+4. test whether the number is not marked already (i.e. wether it's prime)
+5. if so, mark all odd multiples of the number
+6. add not marked numbers (i.e. prime numbers) to the final sum.
+
+Benchmarking this optimized function we see that it's indeed much faster than the solution based on trial division (about 35 times faster):
+
+```{julia}
+@benchmark sumPropt(2_000_000)
+```
+
+But we still can do better:
+optimizing our mixed strategy approach, we want to get rid of all even numbers, as they cannot be prime (except of the number 2, of course).\
+For that, we generate candidates only up to $\frac{limit - 1}{2}$ and treat the elements of the `marked` array as odd numbers in the form $2i+1$.\
+Thus, if $p = 2i + 1$, we find that $p^2 = 4i^2 + 4i + 1$ has the index $2i(i + 1)$, and if $m = k \cdot p$ corresponds to $j$, then $m + 2p$ corresponds to $j + p$.\
+So if the $i^{th}$ index is not yet crossed out, the inner loop starts at $2i(i + 1)$ and proceeds with step size $2i + 1$.
+
+```{julia}
+function sumPropt2(limit::Int)
+  bound = div(limit-1, 2)
+  crosslim = div(Int(floor(sqrt(limit)))-1, 2)
+  marked = falses(bound)
+  for i in 1:crosslim
+    if !marked[i]
+      for j in 2i*(i+1):2i+1:bound
+        marked[j] = true
+      end
+    end
+  end
+  sump = 2
+  for i in 1:bound
+    !marked[i] ? sump += 2i+1 : nothing
+  end
+  sump
+end
+
+@assert sumPropt2(2_000_000) == sumPropt(2_000_000)
+```
+
+```{julia}
+@benchmark sumPropt2(2_000_000)
+```
+
+As expected, this solution allocates only half of the memory, resulting in a little shorter running time.

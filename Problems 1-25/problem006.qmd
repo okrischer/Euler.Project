@@ -1,0 +1,67 @@
+---
+title: "Problem 6"
+jupyter: julia-1.10
+---
+
+## Problem Statement
+
+The sum of the squares of the first ten natural numbers is
+$$1^2 + 2^2 + \dots + 10^2 = 385.$$
+The square of the sum of the first ten natural numbers is
+$$(1 + 2 + \dots + 10)^2 = 55^2 = 3025.$$
+
+Hence the difference between the sum of the squares of the first ten natural numbers and the
+square of the sum is $3025 - 385 = 2640$.
+
+**Find the difference between the sum of the squares of the first one hundred natural numbers
+and the square of the sum.**
+
+## Solution
+
+### Iterative Solution
+
+We can use higher-order functions for solving the problem, which will iterate over all
+elements in the given range.
+Thus, the complexity of this algorithm is $\Theta(n)$.
+
+```{julia}
+sumOfSquares(n::Integer) = sum(x -> x^2, 1:n)
+@show sumOfSquares(10)
+
+squareOfSum(n::Integer) = sum(1:n)^2
+@show squareOfSum(10)
+
+solveIter(n::Integer) = squareOfSum(n) - sumOfSquares(n)
+@assert solveIter(10) == 2640
+```
+
+### Solving with closed Formulas
+
+We can apply the formula for *Triangular Numbers* from
+[Problem 1](problem001.qmd#eq-triangular) to compute the square of the sum:
+
+```{julia}
+closedSqS(n::Integer) = (div(n*(n+1), 2))^2
+closedSqS(10)
+```
+
+There's also a formula for computing the sum of squares
+$$
+\frac{n (n+1) (2n + 1)}{6},
+$$
+
+which can be implemented like so:
+
+```{julia}
+closedSoS(n::Integer) = div(n*(n+1)*(2n + 1), 6)
+closedSoS(10)
+```
+
+Solving the problem with two closed formulas leads to a constant running time,
+thus $\Theta(1)$.
+
+```{julia}
+solveClosed(n::Integer) = closedSqS(n) - closedSoS(n)
+@assert solveClosed(10) == 2640
+@assert solveClosed(100) == solveIter(100)
+```
